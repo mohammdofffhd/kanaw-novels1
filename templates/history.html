@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">📖 سجل القراءة</h2>
+{% if history %}
+<div class="list-group">
+  {% for h in history %}
+  <a href="{{ url_for('read_chapter', chapter_id=h.chapter.id) }}" class="list-group-item list-group-item-action d-flex justify-content-between">
+    <div>
+      <strong style="color:var(--accent);">{{ h.novel.title }}</strong>
+      <span style="color:var(--muted);"> — {{ h.chapter.title }}</span>
+    </div>
+    <small style="color:var(--muted);">{{ h.read_at.strftime('%Y-%m-%d %H:%M') }}</small>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+  <div style="font-size:72px;">📭</div>
+  <h3 style="color:var(--muted);">لم تقرأ أي شيء بعد</h3>
+  <a href="/" class="btn-gold mt-3">تصفح الروايات</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ novel.title }} — Kanaw{% endblock %}
+{% block content %}
+
+<div class="row g-4">
+  <div class="col-md-4">
+    {% if novel.cover_url %}
+      <img src="{{ novel.cover_url }}" class="img-fluid rounded shadow" style="width:100%;" onerror="this.outerHTML='<div style=&quot;background:linear-gradient(135deg,#8b1538,#4a0d1f);border-radius:12px;padding:120px 20px;text-align:center;color:rgba(255,255,255,.5);font-size:80px;&quot;>📖</div>';">
+    {% else %}
+      <div style="background:linear-gradient(135deg,#8b1538,#4a0d1f);border-radius:12px;padding:120px 20px;text-align:center;color:rgba(255,255,255,.5);font-size:80px;">📖</div>
+    {% endif %}
+  </div>
+  <div class="col-md-8">
+    <h1 style="font-family:'Amiri',serif;font-weight:700;">{{ novel.title }}</h1>
+    <p style="color:var(--muted);font-size:16px;"><strong>المؤلف:</strong> {{ novel.author }}</p>
+    <p>
+      <span class="badge" style="background:var(--accent);">{{ novel.category }}</span>
+      <span class="badge" style="background:#6c757d;">{{ novel.status }}</span>
+      <span class="badge" style="background:#28a745;">{{ novel.chapters|length }} فصل</span>
+    </p>
+    {% if novel.description %}<p style="color:var(--muted);line-height:1.8;">{{ novel.description }}</p>{% endif %}
+
+    {% if current_user.is_authenticated %}
+      <button id="favBtn" class="btn {% if is_favorite %}btn-gold{% else %}btn-outline-gold{% endif %} mt-2" onclick="toggleFav({{ novel.id }})">
+        {% if is_favorite %}⭐ في المفضلة{% else %}☆ أضف للمفضلة{% endif %}
+      </button>
+    {% else %}
+      <a href="/login" class="btn-outline-gold mt-2 d-inline-block">سجّل الدخول لإضافة المفضلة</a>
+    {% endif %}
+
+    <hr style="border-color:var(--border);">
+
+    <h4 class="mb-3">📖 قائمة الفصول</h4>
+    {% if novel.chapters %}
+    <div class="list-group" style="max-height:500px;overflow-y:auto;">
+      {% for ch in novel.chapters %}
+      <a href="{{ url_for('read_chapter', chapter_id=ch.id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        <span>{{ ch.title or ('الفصل ' ~ ch.number) }}</span>
+        <span style="color:var(--muted);font-size:12px;">اقرأ →</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:var(--muted);">لا توجد فصول بعد.</p>
+    {% endif %}
+
+    <a href="/" class="btn-outline-gold mt-4 d-inline-block">← العودة للمكتبة</a>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function toggleFav(novelId) {
+  const res = await fetch('/api/favorite/' + novelId, {method: 'POST'});
+  const data = await res.json();
+  const btn = document.getElementById('favBtn');
+  if (data.favorited) {
+    btn.className = 'btn btn-gold mt-2';
+    btn.innerHTML = '⭐ في المفضلة';
+  } else {
+    btn.className = 'btn btn-outline-gold mt-2';
+    btn.innerHTML = '☆ أضف للمفضلة';
+  }
+}
+</script>
+{% endblock %}

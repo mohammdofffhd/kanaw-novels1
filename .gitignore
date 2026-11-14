@@ -1,0 +1,6 @@
+kanaw.db
+instance/
+Rewayatech-Saudi-Stories/
+__pycache__/
+*.pyc
+.env

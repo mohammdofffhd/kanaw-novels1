@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="text-center mb-5 mt-3">
+  <h1 class="display-5 fw-bold" style="font-family:'Amiri',serif;color:var(--accent);">📚 مكتبة Kanaw</h1>
+  <p class="lead" style="color:var(--muted);">روايات عربية كلاسيكية · جاهزة للقراءة</p>
+</div>
+
+{% if categories %}
+<div class="d-flex flex-wrap gap-2 justify-content-center mb-4">
+  <a href="/" class="btn {% if not current_cat %}btn-gold{% else %}btn-outline-gold{% endif %} btn-sm">الكل</a>
+  {% for cat in categories %}
+  <a href="/?cat={{ cat }}" class="btn {% if current_cat==cat %}btn-gold{% else %}btn-outline-gold{% endif %} btn-sm">{{ cat }}</a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if q %}
+<div class="alert" style="background:var(--card);border:1px solid var(--border);color:var(--text);">
+  نتائج البحث: <strong>{{ q }}</strong> — {{ novels.total }} نتيجة
+  <a href="/" class="float-end" style="color:var(--accent);">مسح ✕</a>
+</div>
+{% endif %}
+
+{% if novels.items %}
+<div class="row g-4">
+  {% for novel in novels.items %}
+  <div class="col-6 col-md-4 col-lg-3">
+    <a href="{{ url_for('novel_page', novel_id=novel.id) }}" class="novel-card">
+      {% if novel.cover_url %}
+        <img src="{{ novel.cover_url }}" class="novel-cover" style="object-fit:cover;" onerror="this.outerHTML='<div class=&quot;novel-cover&quot;>📖</div>';">
+      {% else %}
+        <div class="novel-cover">📖</div>
+      {% endif %}
+      <div class="p-3">
+        <div class="novel-title">{{ novel.title }}</div>
+        <div class="novel-author">{{ novel.author }}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;">
+          <span class="badge" style="background:var(--accent);">{{ novel.category }}</span>
+          <span class="ms-1">{{ novel.chapters|length }} فصل</span>
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+
+{% if novels.pages > 1 %}
+<nav class="mt-5">
+  <ul class="pagination justify-content-center">
+    {% if novels.has_prev %}
+    <li class="page-item"><a class="page-link" href="?page={{ novels.prev_num }}{% if q %}&q={{ q }}{% endif %}{% if current_cat %}&cat={{ current_cat }}{% endif %}">السابق</a></li>
+    {% endif %}
+    <li class="page-item active"><span class="page-link">{{ novels.page }} / {{ novels.pages }}</span></li>
+    {% if novels.has_next %}
+    <li class="page-item"><a class="page-link" href="?page={{ novels.next_num }}{% if q %}&q={{ q }}{% endif %}{% if current_cat %}&cat={{ current_cat }}{% endif %}">التالي</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5">
+  <div style="font-size:72px;">📭</div>
+  <h3 style="color:var(--muted);">لا توجد روايات بعد</h3>
+  <p>شغّل: <code>python seed.py</code> أو أضف روايات من <a href="/admin">لوحة التحكم</a></p>
+</div>
+{% endif %}
+
+{% endblock %}

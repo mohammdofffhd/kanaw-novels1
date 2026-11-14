@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">👤 حسابي — {{ current_user.username }}</h2>
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card p-4" style="background:var(--card);border-color:var(--border);">
+      <h4>⭐ المفضلة ({{ favorites|length }})</h4>
+      {% if favorites %}
+      <ul class="list-group">
+        {% for f in favorites[:10] %}
+        <li class="list-group-item d-flex justify-content-between">
+          <a href="{{ url_for('novel_page', novel_id=f.novel.id) }}" style="color:var(--accent);">{{ f.novel.title }}</a>
+          <small style="color:var(--muted);">{{ f.created_at.strftime('%Y-%m-%d') }}</small>
+        </li>
+        {% endfor %}
+      </ul>
+      <a href="/favorites" class="btn-outline-gold mt-3 d-inline-block">كل المفضلة →</a>
+      {% else %}
+      <p style="color:var(--muted);">لم تضف أي رواية للمفضلة بعد.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card p-4" style="background:var(--card);border-color:var(--border);">
+      <h4>📖 آخر ما قرأت</h4>
+      {% if history %}
+      <ul class="list-group">
+        {% for h in history[:10] %}
+        <li class="list-group-item d-flex justify-content-between">
+          <a href="{{ url_for('read_chapter', chapter_id=h.chapter.id) }}" style="color:var(--accent);">
+            {{ h.novel.title }} — {{ h.chapter.title }}
+          </a>
+          <small style="color:var(--muted);">{{ h.read_at.strftime('%Y-%m-%d %H:%M') }}</small>
+        </li>
+        {% endfor %}
+      </ul>
+      <a href="/history" class="btn-outline-gold mt-3 d-inline-block">كل السجل →</a>
+      {% else %}
+      <p style="color:var(--muted);">لم تقرأ أي فصل بعد.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
