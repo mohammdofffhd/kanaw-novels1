@@ -391,6 +391,26 @@ def debug_list():
     except Exception as e:
         return f"<h2>خطأ: {e}</h2>"
 
+
+@app.route('/debug-home')
+def debug_home():
+    try:
+        novels = Novel.query.paginate(page=1, per_page=24, error_out=False)
+        html = "<div dir='rtl' style='padding:20px;font-family:sans-serif;'>"
+        html += f"<h2>Debug Home</h2>"
+        html += f"<p><b>Total novels:</b> {novels.total}</p>"
+        html += f"<p><b>Pages:</b> {novels.pages}</p>"
+        html += f"<p><b>Items on page 1:</b> {len(novels.items)}</p>"
+        if novels.items:
+            html += "<h3>First 5:</h3><ul>"
+            for n in novels.items[:5]:
+                html += f"<li>{n.title} (id={n.id})</li>"
+            html += "</ul>"
+        html += "<hr><a href='/'>→ الرئيسية</a></div>"
+        return html
+    except Exception as e:
+        return f"<h2>❌ خطأ:</h2><pre>{e}</pre>"
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
