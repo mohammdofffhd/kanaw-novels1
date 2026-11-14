@@ -16,17 +16,11 @@ if db_url.startswith('postgres://'):
     db_url = db_url.replace('postgres://', 'postgresql://', 1)
 
 if db_url.startswith('postgresql://'):
-    # إزالة sslmode لأن pg8000 لا يدعمه
     db_url = db_url.split('?')[0]
-    db_url = db_url.replace('postgresql://', 'postgresql+pg8000://', 1)
-    
-    # إعداد SSL للاتصال السحابي
-    ssl_context = ssl.create_default_context()
-    ssl_context.check_hostname = False
-    ssl_context.verify_mode = ssl.CERT_NONE
-    
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'connect_args': {'ssl_context': ssl_context}}
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'connect_args': {'sslmode': 'require'}
+    }
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 
