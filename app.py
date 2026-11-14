@@ -23,13 +23,6 @@ if db_url.startswith('postgresql://'):
     }
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-        'connect_args': {'sslmode': 'require'}
-    }
-else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
