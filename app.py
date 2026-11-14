@@ -218,7 +218,7 @@ def index():
     query = Novel.query
     if q: query = query.filter(Novel.title.contains(q) | Novel.author.contains(q))
     if cat: query = query.filter(Novel.category == cat)
-    novels = query.order_by(Novel.created_at.desc()).paginate(page=page, per_page=24, error_out=False)
+    novels = query.order_by(Novel.id.desc()).paginate(page=page, per_page=24, error_out=False)
     categories = [c[0] for c in db.session.query(Novel.category).distinct().all() if c[0]]
     return render_template('index.html', novels=novels, q=q, current_cat=cat, categories=categories)
 
@@ -287,7 +287,7 @@ def profile():
 @login_required
 def admin():
     if not current_user.is_admin: return redirect(url_for('index'))
-    return render_template('admin.html', novels=Novel.query.order_by(Novel.created_at.desc()).all())
+    return render_template('admin.html', novels=Novel.query.order_by(Novel.id.desc()).all())
 
 @app.route('/admin/novel/new', methods=['POST'])
 @login_required
@@ -305,7 +305,7 @@ def admin_new_novel():
 def admin_edit_novel(novel_id):
     if not current_user.is_admin: return redirect(url_for('index'))
     novel = Novel.query.get_or_404(novel_id)
-    return render_template('admin.html', novels=Novel.query.order_by(Novel.created_at.desc()).all(), edit_novel=novel)
+    return render_template('admin.html', novels=Novel.query.order_by(Novel.id.desc()).all(), edit_novel=novel)
 
 @app.route('/admin/novel/<int:novel_id>/chapter/new', methods=['POST'])
 @login_required
@@ -376,6 +376,20 @@ def debug_db():
         """
     except Exception as e:
         return f"<h2>❌ خطأ:</h2><pre>{e}</pre>"
+
+
+@app.route('/debug-list')
+def debug_list():
+    try:
+        novels = Novel.query.limit(10).all()
+        html = "<div dir='rtl' style='padding:20px;font-family:sans-serif;'>"
+        html += f"<h2>أول 10 روايات (إجمالي: {Novel.query.count()})</h2><ul>"
+        for n in novels:
+            html += f"<li>ID {n.id}: {n.title}</li>"
+        html += "</ul><a href='/'>→ الرئيسية</a></div>"
+        return html
+    except Exception as e:
+        return f"<h2>خطأ: {e}</h2>"
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
