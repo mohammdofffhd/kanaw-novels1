@@ -344,12 +344,38 @@ def admin_delete_chapter(chapter_id):
 # ==========================================
 with app.app_context():
     db.create_all()
+    print('=' * 60, flush=True)
+    print(f'🔍 DB URL: {app.config.get("SQLALCHEMY_DATABASE_URI", "N/A")[:70]}', flush=True)
+    try:
+        print(f'📊 Novels in DB: {Novel.query.count()}', flush=True)
+    except Exception as e:
+        print(f'❌ Novel count error: {e}', flush=True)
+    print('=' * 60, flush=True)
     if not User.query.filter_by(username='kanaw').first():
         admin = User(username='kanaw', is_admin=True)
         admin.set_password('0594683283')
         db.session.add(admin)
         db.session.commit()
         print('✅ تم إنشاء حساب المشرف: kanaw')
+
+
+@app.route('/debug-db')
+def debug_db():
+    try:
+        count = Novel.query.count()
+        db_uri = app.config.get('SQLALCHEMY_DATABASE_URI', 'غير موجود')
+        if '@' in db_uri:
+            db_uri = 'postgresql://***@' + db_uri.split('@')[-1]
+        return f"""
+        <div dir='rtl' style='font-family:sans-serif;padding:20px;line-height:2;'>
+            <h2>🔍 حالة قاعدة البيانات</h2>
+            <p><strong>الرابط:</strong> {db_uri}</p>
+            <p><strong>عدد الروايات:</strong> <span style='color:red;font-size:24px;'>{count}</span></p>
+            <a href='/'>→ الرئيسية</a>
+        </div>
+        """
+    except Exception as e:
+        return f"<h2>❌ خطأ:</h2><pre>{e}</pre>"
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
