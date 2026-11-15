@@ -4,3 +4,4 @@ Rewayatech-Saudi-Stories/
 __pycache__/
 *.pyc
 .env
+.github/

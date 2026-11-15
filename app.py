@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -249,31 +249,33 @@ def api_checkin():
 
 @app.route('/')
 def index():
-    page = request.args.get('page', 1, type=int)
-    q = request.args.get('q', '').strip()
-    query = Novel.query
-    if q:
-        query = query.filter(Novel.title.contains(q) | Novel.author.contains(q))
-    # عرض 20 رواية في كل صفحة
-    novels = query.order_by(Novel.id.desc()).paginate(page=page, per_page=20, error_out=False)
-    return render_template('index.html', novels=novels, q=q)
+    try:
+        featured = Novel.query.order_by(Novel.id.desc()).limit(6).all()
+        latest_novels = Novel.query.order_by(Novel.id.desc()).limit(5).all()
+        latest_data = []
+        for novel in latest_novels:
+            chapters = sorted(novel.chapters, key=lambda c: c.number, reverse=True)[:6]
+            latest_data.append({'novel': novel, 'chapters': chapters})
+        return render_template('index.html', featured=featured, latest_data=latest_data)
+    except Exception as e:
+        import traceback
+        return "<h2 style='color:red;padding:20px;'>خطأ في الرئيسية:</h2><pre style='padding:20px;background:#eee;'>" + traceback.format_exc() + "</pre>", 500
 
 @app.route('/novel/<int:novel_id>')
 def novel_page(novel_id):
-    novel = Novel.query.get_or_404(novel_id)
-    is_fav = False
-    if current_user.is_authenticated:
-        is_fav = bool(Favorite.query.filter_by(user_id=current_user.id, novel_id=novel_id).first())
-    
-    # زيادة المشاهدات (بس مرة واحدة لكل مستخدم)
-    viewed_novels = session.get('viewed_novels', [])
-    if novel_id not in viewed_novels:
+    try:
+        novel = Novel.query.get_or_404(novel_id)
+        is_fav = False
+        if current_user.is_authenticated:
+            is_fav = bool(Favorite.query.filter_by(user_id=current_user.id, novel_id=novel_id).first())
+        
         novel.views = (novel.views or 0) + 1
         db.session.commit()
-        viewed_novels.append(novel_id)
-        session['viewed_novels'] = viewed_novels
-    
-    return render_template('novel.html', novel=novel, is_favorite=is_fav)
+        
+        return render_template('novel.html', novel=novel, is_favorite=is_fav)
+    except Exception as e:
+        import traceback
+        return "<h2 style='color:red;padding:20px;'>خطأ في صفحة الرواية:</h2><pre style='padding:20px;background:#eee;'>" + traceback.format_exc() + "</pre>", 500
 
 @app.route('/read/<int:chapter_id>')
 def read_chapter(chapter_id):
