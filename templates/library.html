@@ -57,7 +57,7 @@
                 <a href="{{ url_for('novel_page', novel_id=novel.id) }}" class="novel-title-link">{{ novel.title }}</a>
                 <div class="stats-grid">
                     <div class="stat-cell"><strong>#{{ (novel.id % 900) + 100 }}</strong><span>الترتيب</span></div>
-                    <div class="stat-cell"><strong>{{ (novel.id * 7) % 500 + 10 }}</strong><span>مشاهدة</span></div>
+                    <div class="stat-cell"><strong>{{ novel.views or 0 }}</strong><span>مشاهدة</span></div>
                     <div class="stat-cell"><strong>{{ novel.status }}</strong><span>الحالة</span></div>
                     <div class="stat-cell"><strong>{{ novel.chapters|length }}</strong><span>فصل</span></div>
                 </div>
@@ -68,14 +68,7 @@
             </div>
         </div>
 
-        <div>
-            <span style="font-size:12px; font-weight:700; color:var(--muted); display:block; margin-bottom:8px;">التصنيفات</span>
-            <div class="tags-container">
-                <span class="tag">{{ novel.category }}</span>
-                <span class="tag">غموض</span>
-                <span class="tag">فانتازيا</span>
-            </div>
-        </div>
+        
 
         <div class="desc-box">
             <strong style="display:block; margin-bottom:5px; color:var(--text);">عن الرواية</strong>

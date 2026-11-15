@@ -108,6 +108,7 @@ class Novel(db.Model):
     source = db.Column(db.String(50), default='manual')
     source_id = db.Column(db.String(200))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    views = db.Column(db.Integer, default=0)
     chapters = db.relationship('Chapter', backref='novel', lazy=True, cascade='all, delete-orphan', order_by='Chapter.number')
 
 class Chapter(db.Model):
@@ -263,7 +264,15 @@ def novel_page(novel_id):
     is_fav = False
     if current_user.is_authenticated:
         is_fav = bool(Favorite.query.filter_by(user_id=current_user.id, novel_id=novel_id).first())
-    # حذفنا المشاهدات الوهمية، هنبعت 0 أو القيمة الحقيقية لو موجودة
+    
+    # زيادة المشاهدات (بس مرة واحدة لكل مستخدم)
+    viewed_novels = session.get('viewed_novels', [])
+    if novel_id not in viewed_novels:
+        novel.views = (novel.views or 0) + 1
+        db.session.commit()
+        viewed_novels.append(novel_id)
+        session['viewed_novels'] = viewed_novels
+    
     return render_template('novel.html', novel=novel, is_favorite=is_fav)
 
 @app.route('/read/<int:chapter_id>')

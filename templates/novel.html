@@ -20,7 +20,7 @@
         <strong style="display:block; font-size:16px; color:#3b2818;">{{ novel.chapters|length }}</strong><span style="font-size:11px; color:#8a7f6b;">فصل</span>
     </div>
     <div class="card p-2 text-center flex-fill" style="background:#fff; border:1px solid #eaddd0; border-radius:12px;">
-        <strong style="display:block; font-size:16px; color:#3b2818;">0</strong><span style="font-size:11px; color:#8a7f6b;">مشاهدة</span>
+        <strong style="display:block; font-size:16px; color:#3b2818;">{{ novel.views or 0 }}</strong><span style="font-size:11px; color:#8a7f6b;">مشاهدة</span>
     </div>
     <div class="card p-2 text-center flex-fill" style="background:#fff; border:1px solid #eaddd0; border-radius:12px;">
         <strong style="display:block; font-size:16px; color:#3b2818;">--</strong><span style="font-size:11px; color:#8a7f6b;">التقييم</span>
