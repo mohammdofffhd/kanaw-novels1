@@ -637,6 +637,11 @@ def debug_home():
     except Exception as e:
         return f"<h2>❌ خطأ:</h2><pre>{e}</pre>"
 
+
+@app.route('/google61909c9b088d7e41.html')
+def google_verification():
+    return 'google-site-verification: google61909c9b088d7e41.html'
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
