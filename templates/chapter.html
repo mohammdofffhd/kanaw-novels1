@@ -36,3 +36,64 @@
 </div>
 
 {% endblock %}
+
+
+{% block scripts %}
+<style id="anti-copy-protection">
+    .chapter-content, .chapter-content *,
+    .card, .card * {
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+        -webkit-touch-callout: none !important;
+        -webkit-tap-highlight-color: transparent;
+    }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // منع الأحداث الأساسية
+    ['copy','cut','contextmenu','selectstart','dragstart'].forEach(function(evt) {
+        document.addEventListener(evt, function(e) {
+            e.preventDefault();
+            return false;
+        }, { passive: false });
+    });
+    
+    // منع اختصارات لوحة المفاتيح
+    document.addEventListener('keydown', function(e) {
+        var k = (e.key || '').toLowerCase();
+        // Ctrl+C, Ctrl+A, Ctrl+U, Ctrl+S, Ctrl+X, Ctrl+P, Print Screen
+        if ((e.ctrlKey || e.metaKey) && ['c','a','u','s','x','p'].indexOf(k) !== -1) {
+            e.preventDefault();
+            return false;
+        }
+        // F12, Ctrl+Shift+I/J/C
+        if (e.key === 'F12' || ((e.ctrlKey || e.metaKey) && e.shiftKey && ['i','j','c'].indexOf(k) !== -1)) {
+            e.preventDefault();
+            return false;
+        }
+        // Print Screen
+        if (e.key === 'PrintScreen') {
+            navigator.clipboard.writeText('');
+            alert('🚫 لقطات الشاشة غير مسموحة');
+            return false;
+        }
+    });
+    
+    // منع القائمة الطويلة على الموبايل
+    document.querySelectorAll('.chapter-content').forEach(function(el) {
+        el.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+        el.style.userSelect = 'none';
+        el.style.webkitUserSelect = 'none';
+    });
+    
+    // منع النقر المزدوج لتحديد كلمة
+    document.addEventListener('dblclick', function(e) {
+        if (e.target.closest('.chapter-content') || e.target.closest('.card')) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}
