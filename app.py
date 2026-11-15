@@ -458,11 +458,6 @@ def join_publisher():
 def dmca_page():
     return render_template('dmca.html')
 
-@app.route('/library')
-def library():
-    return redirect(url_for('index'))
-
-# ============ إدارة الناشرين (للأدمن فقط) ============
 @app.route('/admin/publishers')
 @login_required
 def admin_publishers():
@@ -517,6 +512,29 @@ def admin_suggestions():
     if not current_user.is_admin: return redirect(url_for('index'))
     suggestions = NovelSuggestion.query.order_by(NovelSuggestion.created_at.desc()).all()
     return render_template('admin_suggestions.html', suggestions=suggestions)
+
+
+@app.route('/library')
+def library():
+    page = request.args.get('page', 1, type=int)
+    q = request.args.get('q', '').strip()
+    cat = request.args.get('cat', '').strip()
+    status = request.args.get('status', '').strip()
+    sort_by = request.args.get('sort', 'newest')
+
+    query = Novel.query
+    if q: query = query.filter(Novel.title.contains(q) | Novel.author.contains(q))
+    if cat: query = query.filter(Novel.category == cat)
+    if status: query = query.filter(Novel.status == status)
+
+    if sort_by == 'newest': query = query.order_by(Novel.id.desc())
+    elif sort_by == 'oldest': query = query.order_by(Novel.id.asc())
+
+    novels = query.paginate(page=page, per_page=10, error_out=False)
+    categories = [c[0] for c in db.session.query(Novel.category).distinct().all() if c[0]]
+    statuses = ['مكتملة', 'مستمرة']
+
+    return render_template('library.html', novels=novels, q=q, current_cat=cat, current_status=status, current_sort=sort_by, categories=categories, statuses=statuses)
 
 with app.app_context():
     db.create_all()
