@@ -376,8 +376,15 @@ def profile():
 @app.route('/admin')
 @login_required
 def admin():
-    if not current_user.is_admin: return redirect(url_for('index'))
-    return render_template('admin.html', novels=Novel.query.order_by(Novel.id.desc()).all())
+    if not current_user.is_admin: 
+        flash('هذه الصفحة للمشرف فقط', 'danger')
+        return redirect(url_for('index'))
+    try:
+        novels = Novel.query.order_by(Novel.created_at.desc()).all()
+        return render_template('admin.html', novels=novels)
+    except Exception as e:
+        flash(f'خطأ في لوحة التحكم: {str(e)[:100]}', 'danger')
+        return redirect(url_for('index'))
 
 @app.route('/admin/novel/new', methods=['POST'])
 @login_required
@@ -471,9 +478,13 @@ def dmca_page():
 @login_required
 def admin_publishers():
     if not current_user.is_admin: return redirect(url_for('index'))
-    pending = PublisherRequest.query.filter_by(status='pending').order_by(PublisherRequest.created_at.desc()).all()
-    approved = PublisherRequest.query.filter_by(status='approved').all()
-    return render_template('admin_publishers.html', pending=pending, approved=approved)
+    try:
+        pending = PublisherRequest.query.filter_by(status='pending').order_by(PublisherRequest.created_at.desc()).all()
+        approved = PublisherRequest.query.filter_by(status='approved').all()
+        return render_template('admin_publishers.html', pending=pending, approved=approved)
+    except Exception as e:
+        flash(f'خطأ: {str(e)[:100]}', 'danger')
+        return redirect(url_for('admin'))
 
 @app.route('/admin/publishers/<int:req_id>/approve', methods=['POST'])
 @login_required
@@ -519,9 +530,12 @@ def admin_settings():
 @login_required
 def admin_suggestions():
     if not current_user.is_admin: return redirect(url_for('index'))
-    suggestions = NovelSuggestion.query.order_by(NovelSuggestion.created_at.desc()).all()
-    return render_template('admin_suggestions.html', suggestions=suggestions)
-
+    try:
+        suggestions = NovelSuggestion.query.order_by(NovelSuggestion.created_at.desc()).all()
+        return render_template('admin_suggestions.html', suggestions=suggestions)
+    except Exception as e:
+        flash(f'خطأ: {str(e)[:100]}', 'danger')
+        return redirect(url_for('admin'))
 
 @app.route('/library')
 def library():
