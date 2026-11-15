@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}اقتراح رواية{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4">
+  <div class="col-md-7">
+    <div class="card p-4" style="background:var(--card);border-color:var(--border);">
+      <h2 class="mb-4">💡 اقترح رواية</h2>
+      <p style="color:var(--muted);">هل تعرف رواية تستحق الإضافة؟ أخبرنا عنها.</p>
+      <form method="POST">
+        <label style="color:var(--muted);font-size:14px;">اسم الرواية</label>
+        <input name="title" class="form-control mb-3" required style="background:var(--bg);color:var(--text);border-color:var(--border);">
+        <label style="color:var(--muted);font-size:14px;">لماذا تريد إضافتها؟ (اختياري)</label>
+        <textarea name="reason" rows="4" class="form-control mb-3" style="background:var(--bg);color:var(--text);border-color:var(--border);"></textarea>
+        <button type="submit" class="btn-gold w-100">إرسال الاقتراح</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

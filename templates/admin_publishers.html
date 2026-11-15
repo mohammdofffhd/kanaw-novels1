@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}إدارة الناشرين{% endblock %}
+{% block content %}
+<h2 class="mb-4">👥 إدارة الناشرين</h2>
+
+<h4 class="mt-4">⏳ طلبات قيد المراجعة ({{ pending|length }})</h4>
+{% if pending %}
+<div class="row g-3 mb-4">
+  {% for r in pending %}
+  <div class="col-md-6">
+    <div class="card p-3" style="background:var(--card);border-color:var(--border);">
+      <h5>{{ r.pen_name }}</h5>
+      <p style="color:var(--muted);font-size:13px;">المستخدم: @{{ r.user.username }}</p>
+      {% if r.bio %}<p style="font-size:14px;">{{ r.bio }}</p>{% endif %}
+      {% if r.social_link %}<p style="font-size:12px;word-break:break-all;">{{ r.social_link }}</p>{% endif %}
+      <div class="d-flex gap-2">
+        <form method="POST" action="/admin/publishers/{{ r.id }}/approve" style="flex:1;">
+          <button class="btn btn-success w-100">✅ قبول</button>
+        </form>
+        <form method="POST" action="/admin/publishers/{{ r.id }}/reject" style="flex:1;">
+          <button class="btn btn-danger w-100">❌ رفض</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p style="color:var(--muted);">لا توجد طلبات معلقة.</p>
+{% endif %}
+
+<h4 class="mt-4">✅ الناشرون المعتمدون ({{ approved|length }})</h4>
+{% if approved %}
+<ul class="list-group">
+  {% for r in approved %}
+  <li class="list-group-item d-flex justify-content-between">
+    <span>{{ r.pen_name }} — @{{ r.user.username }}</span>
+    <span style="color:var(--muted);font-size:12px;">{{ r.created_at.strftime('%Y-%m-%d') }}</span>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p style="color:var(--muted);">لا يوجد ناشرون بعد.</p>
+{% endif %}
+{% endblock %}

@@ -135,6 +135,42 @@ class ReadingHistory(db.Model):
     chapter = db.relationship('Chapter')
     novel = db.relationship('Novel')
 
+
+class PublisherRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    pen_name = db.Column(db.String(100), nullable=False)
+    bio = db.Column(db.Text, default='')
+    social_link = db.Column(db.String(300), default='')
+    status = db.Column(db.String(20), default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user = db.relationship('User')
+
+class SiteSettings(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(100), unique=True, nullable=False)
+    value = db.Column(db.Text, default='')
+
+class NovelSuggestion(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(300), nullable=False)
+    reason = db.Column(db.Text, default='')
+    status = db.Column(db.String(20), default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user = db.relationship('User')
+
+def get_setting(key, default=''):
+    s = SiteSettings.query.filter_by(key=key).first()
+    return s.value if s else default
+
+@app.context_processor
+def inject_site_settings():
+    return {
+        'site_name': get_setting('site_name', 'Kanaw'),
+        'site_logo': get_setting('site_logo', ''),
+    }
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -342,6 +378,101 @@ def admin_delete_chapter(chapter_id):
 # ==========================================
 # إنشاء الجداول والأدمن الافتراضي
 # ==========================================
+
+# ============ صفحات المستخدم الجديدة ============
+@app.route('/suggest', methods=['GET', 'POST'])
+@login_required
+def suggest_novel():
+    if request.method == 'POST':
+        title = request.form.get('title', '').strip()
+        reason = request.form.get('reason', '').strip()
+        if title:
+            db.session.add(NovelSuggestion(user_id=current_user.id, title=title, reason=reason))
+            db.session.commit()
+            flash('✅ تم إرسال اقتراحك! شكراً لك', 'success')
+            return redirect(url_for('suggest_novel'))
+    return render_template('suggest.html')
+
+@app.route('/join-publisher', methods=['GET', 'POST'])
+@login_required
+def join_publisher():
+    existing = PublisherRequest.query.filter_by(user_id=current_user.id, status='approved').first()
+    pending = PublisherRequest.query.filter_by(user_id=current_user.id, status='pending').first()
+    if request.method == 'POST' and not existing and not pending:
+        pen_name = request.form.get('pen_name', '').strip()
+        bio = request.form.get('bio', '').strip()
+        social = request.form.get('social_link', '').strip()
+        if pen_name:
+            db.session.add(PublisherRequest(user_id=current_user.id, pen_name=pen_name, bio=bio, social_link=social))
+            db.session.commit()
+            flash('✅ تم إرسال طلبك! سيتم مراجعته قريباً', 'success')
+            return redirect(url_for('join_publisher'))
+    return render_template('join_publisher.html', existing=existing, pending=pending)
+
+@app.route('/dmca')
+def dmca_page():
+    return render_template('dmca.html')
+
+@app.route('/library')
+def library():
+    return redirect(url_for('index'))
+
+# ============ إدارة الناشرين (للأدمن فقط) ============
+@app.route('/admin/publishers')
+@login_required
+def admin_publishers():
+    if not current_user.is_admin: return redirect(url_for('index'))
+    pending = PublisherRequest.query.filter_by(status='pending').order_by(PublisherRequest.created_at.desc()).all()
+    approved = PublisherRequest.query.filter_by(status='approved').all()
+    return render_template('admin_publishers.html', pending=pending, approved=approved)
+
+@app.route('/admin/publishers/<int:req_id>/approve', methods=['POST'])
+@login_required
+def admin_approve_publisher(req_id):
+    if not current_user.is_admin: return redirect(url_for('index'))
+    req = PublisherRequest.query.get_or_404(req_id)
+    req.status = 'approved'
+    db.session.commit()
+    flash(f'✅ تم قبول الناشر {req.pen_name}', 'success')
+    return redirect(url_for('admin_publishers'))
+
+@app.route('/admin/publishers/<int:req_id>/reject', methods=['POST'])
+@login_required
+def admin_reject_publisher(req_id):
+    if not current_user.is_admin: return redirect(url_for('index'))
+    req = PublisherRequest.query.get_or_404(req_id)
+    req.status = 'rejected'
+    db.session.commit()
+    flash('❌ تم رفض الطلب', 'info')
+    return redirect(url_for('admin_publishers'))
+
+# ============ إعدادات الموقع (للأدمن فقط) ============
+@app.route('/admin/settings', methods=['GET', 'POST'])
+@login_required
+def admin_settings():
+    if not current_user.is_admin: return redirect(url_for('index'))
+    if request.method == 'POST':
+        for key in ['site_name', 'site_logo', 'site_description']:
+            val = request.form.get(key, '').strip()
+            s = SiteSettings.query.filter_by(key=key).first()
+            if s:
+                s.value = val
+            else:
+                db.session.add(SiteSettings(key=key, value=val))
+        db.session.commit()
+        flash('✅ تم حفظ الإعدادات', 'success')
+        return redirect(url_for('admin_settings'))
+    settings = {s.key: s.value for s in SiteSettings.query.all()}
+    return render_template('admin_settings.html', settings=settings)
+
+# ============ إدارة الاقتراحات (للأدمن) ============
+@app.route('/admin/suggestions')
+@login_required
+def admin_suggestions():
+    if not current_user.is_admin: return redirect(url_for('index'))
+    suggestions = NovelSuggestion.query.order_by(NovelSuggestion.created_at.desc()).all()
+    return render_template('admin_suggestions.html', suggestions=suggestions)
+
 with app.app_context():
     db.create_all()
     print('=' * 60, flush=True)

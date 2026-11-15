@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}انضم كنانشر{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4">
+  <div class="col-md-7">
+    <div class="card p-4" style="background:var(--card);border-color:var(--border);">
+      <h2 class="mb-4">✍️ انضم كنانشر</h2>
+      {% if existing %}
+        <div class="alert alert-success"><i class="fa-solid fa-check"></i> أنت ناشر معتمد بالفعل</div>
+      {% elif pending %}
+        <div class="alert alert-warning"><i class="fa-solid fa-hourglass"></i> طلبك قيد المراجعة. سيتم الرد قريباً.</div>
+      {% else %}
+        <p style="color:var(--muted);">قدم طلب لتصبح ناشراً على منصة Kanaw.</p>
+        <form method="POST">
+          <label style="color:var(--muted);font-size:14px;">اسم القلم *</label>
+          <input name="pen_name" class="form-control mb-3" required style="background:var(--bg);color:var(--text);border-color:var(--border);">
+          <label style="color:var(--muted);font-size:14px;">نبذة عنك</label>
+          <textarea name="bio" rows="3" class="form-control mb-3" style="background:var(--bg);color:var(--text);border-color:var(--border);"></textarea>
+          <label style="color:var(--muted);font-size:14px;">رابط حسابك أو أعمالك (اختياري)</label>
+          <input name="social_link" class="form-control mb-3" style="background:var(--bg);color:var(--text);border-color:var(--border);">
+          <button type="submit" class="btn-gold w-100">إرسال الطلب</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

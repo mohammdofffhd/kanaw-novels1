@@ -118,19 +118,18 @@ footer{padding:30px 0;margin-top:60px;border-top:1px solid var(--border);text-al
     {% endif %}
     <hr style="border-color:var(--border);">
     <ul class="sidebar-nav">
-      <li><a href="/profile"><i class="fa-solid fa-user"></i> الملف الشخصي</a></li>
       <li><a href="/"><i class="fa-solid fa-house"></i> الرئيسية</a></li>
+      <li><a href="/profile"><i class="fa-solid fa-user"></i> الملف الشخصي</a></li>
       <li><a href="/favorites"><i class="fa-solid fa-star"></i> رواياتي المفضلة</a></li>
       <li><a href="/history"><i class="fa-solid fa-clock-rotate-left"></i> السجل</a></li>
-      <li><a href="#"><i class="fa-solid fa-store"></i> متجر الموقع</a></li>
-      <li><a href="#"><i class="fa-solid fa-shapes"></i> متجر الأشكال</a></li>
-      <li><a href="#"><i class="fa-solid fa-lightbulb"></i> اقتراح رواية</a></li>
-      <li><a href="#"><i class="fa-solid fa-user-plus"></i> انضم كنانشر</a></li>
-      <li><a href="#"><i class="fa-solid fa-book-open"></i> المكتبة</a></li>
-      <li><a href="#"><i class="fa-solid fa-folder"></i> مجلدات</a></li>
-      <li><a href="#"><i class="fa-solid fa-chart-simple"></i> الترتيب</a></li>
-      <li><a href="#"><i class="fa-regular fa-copyright"></i> DMCA</a></li>
+      <li><a href="/library"><i class="fa-solid fa-book-open"></i> المكتبة</a></li>
+      <li><a href="/suggest"><i class="fa-solid fa-lightbulb"></i> اقتراح رواية</a></li>
+      <li><a href="/join-publisher"><i class="fa-solid fa-user-plus"></i> انضم كنانشر</a></li>
+      <li><a href="/dmca"><i class="fa-regular fa-copyright"></i> DMCA</a></li>
       {% if current_user.is_admin %}
+      <li><a href="/admin/publishers"><i class="fa-solid fa-users"></i> إدارة الناشرين</a></li>
+      <li><a href="/admin/suggestions"><i class="fa-solid fa-comments"></i> اقتراحات المستخدمين</a></li>
+      <li><a href="/admin/settings"><i class="fa-solid fa-palette"></i> إعدادات الموقع</a></li>
       <li><a href="/admin"><i class="fa-solid fa-screwdriver-wrench"></i> لوحة التحكم</a></li>
       {% endif %}
     </ul>

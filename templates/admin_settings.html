@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}إعدادات الموقع{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4">
+  <div class="col-md-7">
+    <div class="card p-4" style="background:var(--card);border-color:var(--border);">
+      <h2 class="mb-4">🎨 إعدادات الموقع (للأدمن فقط)</h2>
+      <form method="POST">
+        <label style="color:var(--muted);font-size:14px;">اسم الموقع</label>
+        <input name="site_name" class="form-control mb-3" value="{{ settings.get('site_name', 'Kanaw') }}" style="background:var(--bg);color:var(--text);border-color:var(--border);">
+        <label style="color:var(--muted);font-size:14px;">رابط الشعار (URL صورة)</label>
+        <input name="site_logo" class="form-control mb-3" value="{{ settings.get('site_logo', '') }}" placeholder="https://..." style="background:var(--bg);color:var(--text);border-color:var(--border);">
+        <label style="color:var(--muted);font-size:14px;">وصف الموقع</label>
+        <textarea name="site_description" rows="3" class="form-control mb-3" style="background:var(--bg);color:var(--text);border-color:var(--border);">{{ settings.get('site_description', '') }}</textarea>
+        <button type="submit" class="btn-gold w-100">حفظ التغييرات</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

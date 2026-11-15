@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}اقتراحات المستخدمين{% endblock %}
+{% block content %}
+<h2 class="mb-4">💡 اقتراحات المستخدمين ({{ suggestions|length }})</h2>
+{% if suggestions %}
+<ul class="list-group">
+  {% for s in suggestions %}
+  <li class="list-group-item">
+    <div class="d-flex justify-content-between">
+      <strong>{{ s.title }}</strong>
+      <small style="color:var(--muted);">{{ s.created_at.strftime('%Y-%m-%d') }}</small>
+    </div>
+    <div style="font-size:13px;color:var(--muted);">من: @{{ s.user.username }}</div>
+    {% if s.reason %}<p style="margin-top:8px;font-size:14px;">{{ s.reason }}</p>{% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p style="color:var(--muted);">لا توجد اقتراحات بعد.</p>
+{% endif %}
+{% endblock %}
