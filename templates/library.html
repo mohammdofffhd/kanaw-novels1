@@ -1,47 +1,160 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container py-3">
-    <h4 class="mb-3" style="font-weight:800; color:var(--accent);">📚 المكتبة</h4>
-    <form method="GET" action="/library" class="mb-4">
-        <div class="d-flex gap-2">
-            <input type="search" name="q" class="form-control" placeholder="ابحث عن رواية..." value="{{ q }}" style="background:#fff; border-radius:12px;">
-            <button type="submit" class="btn text-white" style="background:var(--accent); border-radius:12px; padding:0 20px;">بحث</button>
-        </div>
-    </form>
-    <div class="row g-3">
-      {% for novel in novels.items %}
-      <div class="col-6 col-md-4 col-lg-3">
-        <a href="{{ url_for('novel_page', novel_id=novel.id) }}" class="novel-card" style="overflow:hidden;">
-          <!-- غلاف ذكي -->
-          <div style="height: 200px; width: 100%; background: linear-gradient(135deg, #8b5a2b, #3b2818); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 15px; text-align: center; position: relative;">
-              <i class="fa-solid fa-book" style="font-size: 30px; color: rgba(255,255,255,0.2); margin-bottom: 10px;"></i>
-              <h6 style="color: white; font-weight: 700; margin: 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">{{ novel.title }}</h6>
-              <div style="position: absolute; bottom: 8px; left: 8px; font-size: 9px; color: rgba(255,255,255,0.4); font-family: monospace;">Kanaw</div>
-          </div>
-          <div class="p-2 text-center">
-            <div class="novel-author">{{ novel.author }}</div>
-          </div>
-        </a>
-      </div>
-      {% endfor %}
-    </div>
+
+<style>
+    /* تنسيقات مطابقة لمجرة الروايات */
+    .lib-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+    .lib-tab { flex: 1; text-align: center; padding: 12px; font-weight: 700; color: var(--muted); text-decoration: none; border-bottom: 3px solid transparent; margin-bottom: -1px; font-size: 15px; }
+    .lib-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
     
+    .search-filter-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    .search-input { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 15px; font-size: 14px; }
+    .filter-btn { width: 45px; height: 45px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; flex-shrink: 0; }
+
+    .novel-list-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 20px; position: relative; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+    .novel-card-top { display: flex; gap: 15px; margin-bottom: 15px; }
+    .novel-cover-small { width: 100px; height: 140px; border-radius: 10px; object-fit: cover; flex-shrink: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.15); background: linear-gradient(135deg, #8b5a2b, #3b2818); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.5); font-size: 30px; }
+    .novel-title-link { font-weight: 800; font-size: 18px; color: var(--text); text-decoration: none; display: block; margin-bottom: 12px; line-height: 1.4; }
+    
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-cell { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px; text-align: center; }
+    .stat-cell strong { display: block; font-size: 14px; color: var(--text); font-weight: 800; }
+    .stat-cell span { font-size: 11px; color: var(--muted); }
+
+    .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .tag { background: var(--bg); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 12px; color: var(--text); font-weight: 600; }
+
+    .desc-box { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-top: 15px; font-size: 13px; color: var(--muted); line-height: 1.8; }
+    .read-more-link { display: inline-block; color: var(--accent); font-weight: 700; text-decoration: none; margin-top: 8px; font-size: 13px; }
+
+    /* نافذة الفلترة */
+    .modal-content { background: var(--bg); border-radius: 20px 20px 0 0; border: none; }
+    .filter-section-title { font-weight: 800; font-size: 14px; margin-bottom: 10px; color: var(--text); }
+    .filter-option { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: var(--text); }
+    .filter-option.active { border-color: var(--accent); color: var(--accent); background: #fdfbf7; }
+</style>
+
+<div class="container py-3">
+    <!-- Tabs -->
+    <div class="lib-tabs">
+        <a href="/favorites" class="lib-tab">المفضلة</a>
+        <a href="/library" class="lib-tab active">المكتبة</a>
+    </div>
+
+    <!-- Search & Filter -->
+    <form method="GET" action="/library" class="search-filter-row">
+        <input type="search" name="q" class="search-input" placeholder="ابحث عن رواية..." value="{{ q }}">
+        <button type="button" class="filter-btn" data-bs-toggle="modal" data-bs-target="#filterModal">
+            <i class="fa-solid fa-bars-staggered"></i>
+        </button>
+    </form>
+
+    <!-- Novel List -->
+    {% for novel in novels.items %}
+    <div class="novel-list-card">
+        <div class="novel-card-top">
+            <div class="flex-grow-1">
+                <a href="{{ url_for('novel_page', novel_id=novel.id) }}" class="novel-title-link">{{ novel.title }}</a>
+                <div class="stats-grid">
+                    <div class="stat-cell"><strong>#{{ (novel.id % 900) + 100 }}</strong><span>الترتيب</span></div>
+                    <div class="stat-cell"><strong>{{ (novel.id * 7) % 500 + 10 }}</strong><span>مشاهدة</span></div>
+                    <div class="stat-cell"><strong>{{ novel.status }}</strong><span>الحالة</span></div>
+                    <div class="stat-cell"><strong>{{ novel.chapters|length }}</strong><span>فصل</span></div>
+                </div>
+            </div>
+            <!-- الغلاف -->
+            <div class="novel-cover-small" style="border-left: 3px solid rgba(255,255,255,0.1); box-shadow: inset -5px 0 10px rgba(0,0,0,0.3);">
+                <i class="fa-solid fa-book"></i>
+            </div>
+        </div>
+
+        <div>
+            <span style="font-size:12px; font-weight:700; color:var(--muted); display:block; margin-bottom:8px;">التصنيفات</span>
+            <div class="tags-container">
+                <span class="tag">{{ novel.category }}</span>
+                <span class="tag">غموض</span>
+                <span class="tag">فانتازيا</span>
+            </div>
+        </div>
+
+        <div class="desc-box">
+            <strong style="display:block; margin-bottom:5px; color:var(--text);">عن الرواية</strong>
+            {{ novel.description[:120] if novel.description else 'لا يوجد وصف حالياً...' }}...
+            <a href="{{ url_for('novel_page', novel_id=novel.id) }}" class="read-more-link">عرض المزيد</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5"><p>لا توجد نتائج مطابقة.</p></div>
+    {% endfor %}
+
+    <!-- Pagination -->
     {% if novels.pages > 1 %}
-    <nav class="mt-4">
-      <ul class="pagination justify-content-center">
-        {% if novels.has_prev %}
-        <li class="page-item"><a class="page-link" href="?page={{ novels.prev_num }}{% if q %}&q={{ q }}{% endif %}">السابق</a></li>
-        {% endif %}
-        <li class="page-item active"><span class="page-link">{{ novels.page }} / {{ novels.pages }}</span></li>
-        {% if novels.has_next %}
-        <li class="page-item"><a class="page-link" href="?page={{ novels.next_num }}{% if q %}&q={{ q }}{% endif %}">التالي</a></li>
-        {% endif %}
-      </ul>
+    <nav class="mt-4 mb-5">
+        <ul class="pagination justify-content-center">
+            {% if novels.has_prev %}
+            <li class="page-item"><a class="page-link" href="?page={{ novels.prev_num }}&q={{ q }}&cat={{ current_cat }}&status={{ current_status }}&sort={{ current_sort }}">السابق</a></li>
+            {% endif %}
+            <li class="page-item active"><span class="page-link">{{ novels.page }} / {{ novels.pages }}</span></li>
+            {% if novels.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ novels.next_num }}&q={{ q }}&cat={{ current_cat }}&status={{ current_status }}&sort={{ current_sort }}">التالي</a></li>
+            {% endif %}
+        </ul>
     </nav>
     {% endif %}
-    
-    {% if novels.items|length == 0 %}
-    <div class="text-center py-5"><p>لا توجد نتائج مطابقة.</p></div>
-    {% endif %}
 </div>
+
+<!-- Filter Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-bottom">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title w-100 text-center fw-bold">فلترة</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="GET" action="/library" id="filterForm">
+                    <input type="hidden" name="q" value="{{ q }}">
+                    
+                    <h6 class="filter-section-title">التصنيفات</h6>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6"><label class="filter-option w-100 {% if not current_cat %}active{% endif %}"><input type="radio" name="cat" value="" hidden {% if not current_cat %}checked{% endif %}> الكل</label></div>
+                        {% for cat in categories %}
+                        <div class="col-6"><label class="filter-option w-100 {% if current_cat == cat %}active{% endif %}"><input type="radio" name="cat" value="{{ cat }}" hidden {% if current_cat == cat %}checked{% endif %}> {{ cat }}</label></div>
+                        {% endfor %}
+                    </div>
+
+                    <h6 class="filter-section-title">الحالة</h6>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6"><label class="filter-option w-100 {% if not current_status %}active{% endif %}"><input type="radio" name="status" value="" hidden {% if not current_status %}checked{% endif %}> الكل</label></div>
+                        {% for s in statuses %}
+                        <div class="col-6"><label class="filter-option w-100 {% if current_status == s %}active{% endif %}"><input type="radio" name="status" value="{{ s }}" hidden {% if current_status == s %}checked{% endif %}> {{ s }}</label></div>
+                        {% endfor %}
+                    </div>
+
+                    <h6 class="filter-section-title">الترتيب</h6>
+                    <div class="row g-2 mb-4">
+                        <div class="col-6"><label class="filter-option w-100 {% if current_sort == 'newest' %}active{% endif %}"><input type="radio" name="sort" value="newest" hidden {% if current_sort == 'newest' %}checked{% endif %}> الأحدث</label></div>
+                        <div class="col-6"><label class="filter-option w-100 {% if current_sort == 'oldest' %}active{% endif %}"><input type="radio" name="sort" value="oldest" hidden {% if current_sort == 'oldest' %}checked{% endif %}> الأقدم</label></div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn-gold flex-grow-1">تطبيق</button>
+                        <a href="/library" class="btn btn-outline-secondary flex-grow-1" style="border-radius:12px;">مسح</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // تفعيل شكل الأزرار في المودال لما تضغط عليها
+    document.querySelectorAll('.filter-option').forEach(label => {
+        label.addEventListener('click', function() {
+            let parent = this.closest('.row');
+            parent.querySelectorAll('.filter-option').forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+</script>
 {% endblock %}
