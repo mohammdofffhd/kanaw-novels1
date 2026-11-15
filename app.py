@@ -248,15 +248,10 @@ def api_checkin():
 
 @app.route('/')
 def index():
-    page = request.args.get('page', 1, type=int)
-    q = request.args.get('q', '').strip()
-    cat = request.args.get('cat', '').strip()
-    query = Novel.query
-    if q: query = query.filter(Novel.title.contains(q) | Novel.author.contains(q))
-    if cat: query = query.filter(Novel.category == cat)
-    novels = query.order_by(Novel.id.desc()).paginate(page=page, per_page=24, error_out=False)
     categories = [c[0] for c in db.session.query(Novel.category).distinct().all() if c[0]]
-    return render_template('index.html', novels=novels, q=q, current_cat=cat, categories=categories)
+    # جلب أحدث 10 روايات
+    novels = Novel.query.order_by(Novel.id.desc()).limit(10).all()
+    return render_template('index.html', novels=novels, categories=categories)
 
 @app.route('/novel/<int:novel_id>')
 def novel_page(novel_id):
@@ -264,7 +259,9 @@ def novel_page(novel_id):
     is_fav = False
     if current_user.is_authenticated:
         is_fav = bool(Favorite.query.filter_by(user_id=current_user.id, novel_id=novel_id).first())
-    return render_template('novel.html', novel=novel, is_favorite=is_fav)
+    # حساب عدد المشاهدات (مبدئياً رقم عشوائي أو بناءً على الفصول)
+    views = len(novel.chapters) * 15 
+    return render_template('novel.html', novel=novel, is_favorite=is_fav, views=views)
 
 @app.route('/read/<int:chapter_id>')
 def read_chapter(chapter_id):
@@ -306,8 +303,53 @@ def favorites():
 @app.route('/history')
 @login_required
 def history():
-    items = ReadingHistory.query.filter_by(user_id=current_user.id).order_by(ReadingHistory.read_at.desc()).limit(100).all()
-    return render_template('history.html', history=items)
+    items = ReadingHistory.query.filter_by(user_id=current_user.id).order_by(ReadingHistory.read_at.desc()).all()
+    novels_dict = {}
+    for h in items:
+        if h.novel_id not in novels_dict:
+            novels_dict[h.novel_id] = {
+                'novel': h.novel,
+                'chapters': [],
+                'last_read': h.read_at
+            }
+        novels_dict[h.novel_id]['chapters'].append(h)
+        if h.read_at > novels_dict[h.novel_id]['last_read']:
+            novels_dict[h.novel_id]['last_read'] = h.read_at
+            
+    novels_list = list(novels_dict.values())
+    novels_list.sort(key=lambda x: x['last_read'], reverse=True)
+    
+    total_novels = len(novels_list)
+    total_chapters = len(items)
+    
+    return render_template('history.html', novels_list=novels_list, total_novels=total_novels, total_chapters=total_chapters)
+
+@app.route('/clear-history', methods=['POST'])
+@login_required
+def clear_history():
+    ReadingHistory.query.filter_by(user_id=current_user.id).delete()
+    db.session.commit()
+    flash('تم مسح سجل القراءة بالكامل', 'success')
+    return redirect(url_for('history'))
+
+@app.route('/clear-history/novel/<int:novel_id>', methods=['POST'])
+@login_required
+def clear_history_novel(novel_id):
+    ReadingHistory.query.filter_by(user_id=current_user.id, novel_id=novel_id).delete()
+    db.session.commit()
+    flash('تم مسح سجل هذه الرواية', 'success')
+    return redirect(url_for('history'))
+
+@app.route('/clear-history/chapter/<int:history_id>', methods=['POST'])
+@login_required
+def clear_history_chapter(history_id):
+    h = ReadingHistory.query.get_or_404(history_id)
+    if h.user_id == current_user.id:
+        db.session.delete(h)
+        db.session.commit()
+        flash('تم مسح الفصل من السجل', 'success')
+    return redirect(url_for('history'))
+
 
 @app.route('/profile')
 @login_required

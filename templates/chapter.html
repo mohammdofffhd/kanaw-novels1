@@ -1,74 +1,37 @@
 {% extends "base.html" %}
-{% block title %}{{ chapter.title }} — {{ novel.title }}{% endblock %}
+{% block title %}الفصل {{ chapter.number }} - {{ novel.title }}{% endblock %}
 {% block content %}
 
-<!-- زر قائمة الفصول (موبايل فقط) -->
-<div class="d-lg-none mb-3">
-  <button class="btn-outline-gold w-100" type="button" data-bs-toggle="collapse" data-bs-target="#chaptersMobile">
-    📖 عرض قائمة الفصول ({{ all_chapters|length }})
-  </button>
+<!-- العنوان (مثل الصورة الأولى) -->
+<div class="text-center mb-4 mt-2">
+  <h5 style="color:var(--muted); font-size:13px; font-weight:700;">{{ novel.title }}</h5>
+  <h3 style="font-weight:800;">الفصل {{ chapter.number }}: {{ chapter.title or '' }}</h3>
 </div>
 
-<div class="collapse d-lg-none mb-3" id="chaptersMobile">
-  <div class="list-group" style="max-height:300px;overflow-y:auto;">
-    {% for c in all_chapters %}
-    <a href="{{ url_for('read_chapter', chapter_id=c.id) }}"
-       class="list-group-item list-group-item-action {% if c.id == chapter.id %}active{% endif %}">
-      {{ c.title or ('الفصل ' ~ c.number) }}
-    </a>
-    {% endfor %}
-  </div>
+<!-- محتوى الفصل -->
+<div class="card p-4 mb-4" style="background:var(--card); border-color:var(--border); border-radius:16px;">
+  <div style="font-size:18px; line-height:2.2; color:var(--text); text-align:justify; white-space:pre-wrap;">{{ chapter.content }}</div>
 </div>
 
-<div class="row g-3">
-  <!-- القائمة الجانبية (كمبيوتر فقط) -->
-  <div class="col-lg-3 d-none d-lg-block order-lg-2">
-    <div class="chapter-sidebar">
-      <div class="p-3 rounded" style="background:var(--card);border:1px solid var(--border);">
-        <h6 class="mb-3">
-          <a href="{{ url_for('novel_page', novel_id=novel.id) }}" style="color:var(--accent);text-decoration:none;">
-            ← {{ novel.title }}
-          </a>
-        </h6>
-        <div class="list-group" style="max-height:70vh;overflow-y:auto;">
-          {% for c in all_chapters %}
-          <a href="{{ url_for('read_chapter', chapter_id=c.id) }}"
-             class="list-group-item list-group-item-action {% if c.id == chapter.id %}active{% endif %}"
-             style="font-size:13px;padding:8px 12px;">
-            {{ c.title or ('الفصل ' ~ c.number) }}
-          </a>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-  </div>
+<!-- أزرار التنقل -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  {% if prev_ch %}
+  <a href="{{ url_for('read_chapter', chapter_id=prev_ch.id) }}" class="btn btn-outline-secondary" style="border-radius:10px;"><i class="fa-solid fa-arrow-right"></i> السابق</a>
+  {% else %}<div></div>{% endif %}
+  
+  <a href="/novel/{{ novel.id }}" class="btn btn-light" style="border-radius:10px; border:1px solid var(--border); font-size:12px;"><i class="fa-solid fa-list"></i> الفصول</a>
+  
+  {% if next_ch %}
+  <a href="{{ url_for('read_chapter', chapter_id=next_ch.id) }}" class="btn-gold" style="border-radius:10px;">التالي <i class="fa-solid fa-arrow-left"></i></a>
+  {% else %}<div></div>{% endif %}
+</div>
 
-  <!-- المحتوى -->
-  <div class="col-lg-9 order-lg-1">
-    <h2 style="font-family:'Amiri',serif;">{{ chapter.title }}</h2>
-    <p style="color:var(--muted);">الفصل {{ chapter.number }}</p>
-    <hr style="border-color:var(--border);">
-
-    {% if chapter.content and chapter.content|length > 0 %}
-      <div class="chapter-content">{{ chapter.content }}</div>
-    {% else %}
-      <div class="alert alert-warning" style="text-align:center;">
-        ⚠️ هذا الفصل لا يحتوي على نص.
-      </div>
-    {% endif %}
-
-    <hr style="border-color:var(--border);margin-top:50px;">
-    <div class="d-flex justify-content-between flex-wrap gap-2">
-      {% if prev_ch %}
-      <a href="{{ url_for('read_chapter', chapter_id=prev_ch.id) }}" class="btn-outline-gold">← السابق</a>
-      {% else %}<div></div>{% endif %}
-
-      <a href="{{ url_for('novel_page', novel_id=novel.id) }}" class="btn-outline-gold">📖 كل الفصول</a>
-
-      {% if next_ch %}
-      <a href="{{ url_for('read_chapter', chapter_id=next_ch.id) }}" class="btn-gold">التالي →</a>
-      {% else %}<div></div>{% endif %}
-    </div>
+<!-- شريط التقدم (مثل الصورة الأولى) -->
+{% set progress = (chapter.number / (novel.chapters|length)) * 100 %}
+<div class="d-flex flex-column align-items-center mb-4">
+  <div style="font-size:12px; color:var(--muted); margin-bottom:5px;">{{ chapter.number }} / {{ novel.chapters|length }} ({{ progress|round|int }}%)</div>
+  <div style="width:100%; height:6px; background:var(--border); border-radius:10px; overflow:hidden;">
+    <div style="width:{{ progress }}%; height:100%; background:var(--accent);"></div>
   </div>
 </div>
 

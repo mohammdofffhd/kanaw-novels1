@@ -5,82 +5,101 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}Kanaw — مكتبة الروايات{% endblock %}</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-:root{--bg:#f8f6f1;--card:#fff;--text:#1a1a1a;--muted:#6c757d;--accent:#8b1538;--border:#e0dcd3;--gold:#d4af37}
-body.dark{--bg:#12100e;--card:#1c1a17;--text:#e8e4dc;--muted:#8a8578;--border:#2e2a24}
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;transition:.3s;min-height:100vh}
-.navbar{background:var(--card)!important;border-bottom:1px solid var(--border);padding:12px 0}
-.brand{font-family:'Amiri',serif;font-size:26px;font-weight:700;color:var(--accent)!important;text-decoration:none}
-.brand::before{content:'📚 '}
-.search-box{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:50px;padding:8px 18px}
-.search-box:focus{background:var(--bg);color:var(--text);border-color:var(--accent);box-shadow:0 0 0 .2rem rgba(139,21,56,.15)}
-.novel-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:.25s;height:100%;text-decoration:none;color:var(--text);display:block}
-.novel-card:hover{transform:translateY(-5px);box-shadow:0 12px 30px rgba(0,0,0,.15);color:var(--text)}
-.novel-cover{width:100%;height:260px;object-fit:cover;background:linear-gradient(135deg,#8b1538,#4a0d1f);display:flex;align-items:center;justify-content:center;font-size:64px;color:rgba(255,255,255,.3)}
-.novel-title{font-weight:700;font-size:15px;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:42px}
-.novel-author{font-size:12px;color:var(--muted)}
-.btn-gold{background:var(--accent);color:#fff;border:none;border-radius:50px;padding:10px 24px;font-weight:700}
-.btn-gold:hover{background:#6d1030;color:#fff}
-.btn-outline-gold{background:transparent;color:var(--accent);border:2px solid var(--accent);border-radius:50px;padding:8px 22px;font-weight:700}
-.btn-outline-gold:hover{background:var(--accent);color:#fff}
-.chapter-content{font-family:'Amiri',serif;font-size:20px;line-height:2.2;white-space:pre-wrap;text-align:justify;color:var(--text)}
-.list-group-item{background:var(--card);color:var(--text);border-color:var(--border)}
-.list-group-item:hover{background:var(--bg);color:var(--accent)}
-.list-group-item.active{background:var(--accent)!important;border-color:var(--accent)!important}
-.pagination .page-link{color:var(--accent);background:var(--card);border-color:var(--border)}
-.pagination .page-link:hover{background:var(--accent);color:#fff}
-.pagination .active .page-link{background:var(--accent);border-color:var(--accent)}
-.theme-toggle{border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:16px}
-footer{padding:30px 0;margin-top:60px;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:13px}
-.chapter-sidebar{max-height:80vh;overflow-y:auto;position:sticky;top:80px}
-.menu-btn{border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:10px;width:40px;height:40px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
-.offcanvas{background:var(--card)!important;color:var(--text)!important}
-.offcanvas-header{border-bottom:1px solid var(--border)}
-.offcanvas-body{color:var(--text);padding:20px}
-.sidebar-user{text-align:center;margin-bottom:20px}
-.sidebar-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#4a0d1f);display:flex;align-items:center;justify-content:center;font-size:36px;color:#fff;margin:0 auto 15px;border:3px solid var(--border)}
-.sidebar-username{font-size:18px;font-weight:700;margin:0}
-.sidebar-user p{color:var(--muted);font-size:12px;margin-top:5px}
-.sidebar-stats{display:flex;justify-content:space-around;margin:20px 0;padding:15px;background:var(--bg);border-radius:12px}
-.sidebar-stats div{text-align:center}
-.sidebar-stats small{display:block;color:var(--muted);font-size:11px}
-.sidebar-stats strong{display:block;font-size:16px;color:var(--accent)}
-.xp-bar{height:10px;background:var(--bg);border-radius:10px;overflow:hidden;margin:10px 0}
-.xp-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--accent));transition:width .5s}
-.sidebar-nav{list-style:none;padding:0;margin:0}
-.sidebar-nav li{margin-bottom:6px}
-.sidebar-nav a{display:flex;align-items:center;padding:12px 15px;border-radius:12px;color:var(--text);text-decoration:none;font-weight:600;font-size:14px;transition:all .2s;border:1px solid var(--border);background:var(--bg)}
-.sidebar-nav a:hover{background:var(--card);border-color:var(--accent);color:var(--accent);transform:translateX(-3px)}
-.sidebar-nav a i{margin-left:12px;width:20px;text-align:center;font-size:16px;color:var(--accent)}
-@media(max-width:768px){.chapter-sidebar{position:static;max-height:none;margin-bottom:20px}}
+:root {
+    --bg: #f6f3eb; /* خلفية مجرة الفاتحة */
+    --card: #ffffff;
+    --text: #3b2818;
+    --muted: #8a7f6b;
+    --accent: #a67c52; /* البني الفاتح */
+    --gold: #d4af37;
+    --border: #eaddd0;
+    --nav-bg: #fffdf9;
+}
+body.dark {
+    --bg: #12100e; --card: #1c1a17; --text: #e8e4dc; --muted: #8a8578;
+    --border: #2e2a24; --nav-bg: #1c1a17;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: 'Tajawal', sans-serif; transition: .3s; min-height: 100vh; padding-bottom: 70px; }
+
+/* Top Navbar */
+.navbar { background: var(--card) !important; border-bottom: 1px solid var(--border); padding: 12px 0; }
+.brand { font-family: 'Cairo', sans-serif; font-size: 24px; font-weight: 800; color: var(--accent) !important; text-decoration: none; }
+.brand::before { content: '📚 '; }
+.search-box { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 50px; padding: 8px 18px; }
+.search-box:focus { background: var(--bg); color: var(--text); border-color: var(--accent); box-shadow: none; }
+.btn-icon { width: 38px; height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid var(--border); color: var(--text); cursor: pointer; text-decoration: none; }
+.btn-icon:hover { background: var(--card); color: var(--accent); }
+
+/* Bottom Nav */
+.bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 65px;
+    background: var(--nav-bg); border-top: 1px solid var(--border);
+    display: flex; justify-content: space-around; align-items: center;
+    z-index: 1000; box-shadow: 0 -5px 15px rgba(0,0,0,0.03);
+}
+.bottom-nav a { display: flex; flex-direction: column; align-items: center; color: var(--muted); text-decoration: none; font-size: 11px; gap: 4px; width: 20%; }
+.bottom-nav a i { font-size: 18px; }
+.bottom-nav a.active { color: var(--accent); font-weight: 700; }
+.bottom-nav a.active i { color: var(--accent); }
+
+/* Cards & Buttons */
+.btn-gold { background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 10px 24px; font-weight: 700; }
+.btn-gold:hover { background: #8b5a2b; color: #fff; }
+.btn-outline-gold { background: transparent; color: var(--accent); border: 2px solid var(--accent); border-radius: 12px; padding: 8px 22px; font-weight: 700; }
+.novel-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; text-decoration: none; color: var(--text); display: block; transition: .2s; }
+.novel-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,.05); color: var(--text); }
+.novel-cover { width: 100%; height: 220px; object-fit: cover; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 40px; color: var(--border); }
+.novel-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.novel-author { font-size: 12px; color: var(--muted); }
+
+/* Sidebar Menu */
+.offcanvas { background: var(--card) !important; color: var(--text) !important; }
+.offcanvas-header { border-bottom: 1px solid var(--border); }
+.sidebar-user { text-align: center; margin-bottom: 20px; }
+.sidebar-avatar { width: 70px; height: 70px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 30px; color: #fff; margin: 0 auto 10px; }
+.sidebar-stats { display: flex; justify-content: space-around; margin: 15px 0; padding: 12px; background: var(--bg); border-radius: 12px; text-align: center; }
+.sidebar-stats strong { display: block; color: var(--accent); font-size: 16px; }
+.sidebar-stats small { color: var(--muted); font-size: 11px; }
+.xp-bar { height: 8px; background: var(--bg); border-radius: 10px; overflow: hidden; margin: 8px 0; }
+.xp-fill { height: 100%; background: var(--accent); }
+.sidebar-nav { list-style: none; padding: 0; margin: 0; }
+.sidebar-nav li { margin-bottom: 5px; }
+.sidebar-nav a { display: flex; align-items: center; padding: 10px 15px; border-radius: 10px; color: var(--text); text-decoration: none; font-weight: 500; font-size: 14px; }
+.sidebar-nav a:hover { background: var(--bg); color: var(--accent); }
+.sidebar-nav a i { margin-left: 10px; width: 20px; text-align: center; color: var(--muted); }
 </style>
 </head>
 <body>
+
+<!-- Top Navbar -->
 <nav class="navbar">
   <div class="container">
     <div class="d-flex justify-content-between align-items-center w-100 gap-2">
-      <a class="navbar-brand brand" href="/">Kanaw</a>
-      <form action="/" method="GET" class="d-flex flex-grow-1" style="max-width:400px;">
-        <input type="search" name="q" class="form-control search-box" placeholder="ابحث..." value="{{ q or '' }}">
-      </form>
       <div class="d-flex align-items-center gap-2">
-        {% if current_user.is_authenticated %}
-          <span class="badge d-none d-md-inline" style="background:var(--gold);color:#000;font-weight:700;padding:8px 12px;border-radius:20px;">{{ current_user.rank_icon }} {{ current_user.rank_name }}</span>
-          <button class="menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#galaxyMenu"><i class="fa-solid fa-bars"></i></button>
-        {% else %}
-          <a href="/login" class="btn btn-sm btn-outline-gold">دخول</a>
-          <a href="/register" class="btn btn-sm btn-gold">تسجيل</a>
-        {% endif %}
-        <button class="theme-toggle" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+        <button class="btn-icon d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#galaxyMenu"><i class="fa-solid fa-bars"></i></button>
+        <a class="navbar-brand brand" href="/">Kanaw</a>
+      </div>
+      
+      <form action="/library" method="GET" class="d-none d-md-flex flex-grow-1 mx-4" style="max-width:400px;">
+        <input type="search" name="q" class="form-control search-box" placeholder="ابحث عن رواية..." value="{{ q or '' }}">
+      </form>
+      
+      <div class="d-flex align-items-center gap-2">
+        <a href="/library" class="btn-icon d-md-none"><i class="fa-solid fa-magnifying-glass"></i></a>
+        <button class="btn-icon" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+        <a href="/notifications" class="btn-icon d-none d-md-inline-flex"><i class="fa-regular fa-bell"></i></a>
       </div>
     </div>
   </div>
 </nav>
+
+<!-- Sidebar Menu -->
 {% if current_user.is_authenticated %}
-<div class="offcanvas offcanvas-end" tabindex="-1" id="galaxyMenu" style="max-width:320px;">
+<div class="offcanvas offcanvas-end" tabindex="-1" id="galaxyMenu" style="max-width:300px;">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title">القائمة</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
@@ -88,11 +107,8 @@ footer{padding:30px 0;margin-top:60px;border-top:1px solid var(--border);text-al
   <div class="offcanvas-body">
     <div class="sidebar-user">
       <div class="sidebar-avatar">{{ current_user.username[0]|upper }}</div>
-      <h5 class="sidebar-username">{{ current_user.username }}</h5>
-      <p>عضو منذ {{ current_user.created_at.strftime('%Y-%m-%d') }}</p>
-    </div>
-    <div class="text-center mb-3">
-      <span class="badge" style="background:var(--gold);color:#000;font-weight:700;padding:8px 16px;border-radius:20px;font-size:13px;">{{ current_user.rank_icon }} {{ current_user.rank_name }}</span>
+      <h5 style="margin:0; font-weight:700;">{{ current_user.username }}</h5>
+      <div style="color:var(--accent); font-weight:700; font-size:13px; margin-top:4px;">{{ current_user.rank_icon }} {{ current_user.rank_name }}</div>
     </div>
     <div class="sidebar-stats">
       <div><strong>{{ current_user.level }}</strong><small>المستوى</small></div>
@@ -100,44 +116,29 @@ footer{padding:30px 0;margin-top:60px;border-top:1px solid var(--border);text-al
       <div><strong>{{ current_user.checkin_streak or 0 }}</strong><small>ستريك</small></div>
     </div>
     <div class="mb-3">
-      <div class="d-flex justify-content-between" style="font-size:13px;color:var(--muted);">
-        <span>المستوى {{ current_user.level }} / {{ max_level }}</span>
-        <span>{{ current_user.xp }} XP</span>
-      </div>
+      <div class="d-flex justify-content-between" style="font-size:12px; color:var(--muted);"><span>المستوى {{ current_user.level }}</span><span>{{ current_user.xp }} XP</span></div>
       <div class="xp-bar"><div class="xp-fill" style="width:{{ current_user.xp_progress }}%;"></div></div>
-      {% if current_user.level < max_level %}
-      <small style="color:var(--muted);text-align:center;display:block;">متبقي {{ current_user.xp_remaining }} XP</small>
-      {% else %}
-      <small style="color:var(--gold);text-align:center;display:block;font-weight:700;">👑 وصلت للقمة!</small>
-      {% endif %}
     </div>
     {% if current_user.can_checkin %}
-    <button onclick="doCheckin(this)" class="btn-gold w-100 mb-3"><i class="fa-solid fa-gift"></i> مكافأة الحضور</button>
-    {% else %}
-    <button class="btn btn-secondary w-100 mb-3" disabled><i class="fa-solid fa-check"></i> سجلت اليوم</button>
+    <button onclick="doCheckin(this)" class="btn-gold w-100 mb-3">🎁 مكافأة الحضور</button>
     {% endif %}
-    <hr style="border-color:var(--border);">
     <ul class="sidebar-nav">
       <li><a href="/"><i class="fa-solid fa-house"></i> الرئيسية</a></li>
-      <li><a href="/profile"><i class="fa-solid fa-user"></i> الملف الشخصي</a></li>
-      <li><a href="/favorites"><i class="fa-solid fa-star"></i> رواياتي المفضلة</a></li>
-      <li><a href="/history"><i class="fa-solid fa-clock-rotate-left"></i> السجل</a></li>
       <li><a href="/library"><i class="fa-solid fa-book-open"></i> المكتبة</a></li>
+      <li><a href="/history"><i class="fa-solid fa-clock-rotate-left"></i> السجل</a></li>
+      <li><a href="/favorites"><i class="fa-solid fa-star"></i> المفضلة</a></li>
       <li><a href="/suggest"><i class="fa-solid fa-lightbulb"></i> اقتراح رواية</a></li>
       <li><a href="/join-publisher"><i class="fa-solid fa-user-plus"></i> انضم كنانشر</a></li>
-      <li><a href="/dmca"><i class="fa-regular fa-copyright"></i> DMCA</a></li>
       {% if current_user.is_admin %}
-      <li><a href="/admin/publishers"><i class="fa-solid fa-users"></i> إدارة الناشرين</a></li>
-      <li><a href="/admin/suggestions"><i class="fa-solid fa-comments"></i> اقتراحات المستخدمين</a></li>
-      <li><a href="/admin/settings"><i class="fa-solid fa-palette"></i> إعدادات الموقع</a></li>
-      <li><a href="/admin"><i class="fa-solid fa-screwdriver-wrench"></i> لوحة التحكم</a></li>
+      <li><hr><a href="/admin"><i class="fa-solid fa-screwdriver-wrench"></i> لوحة التحكم</a></li>
       {% endif %}
+      <li><hr><a href="/logout" style="color:#dc3545;"><i class="fa-solid fa-right-from-bracket" style="color:#dc3545;"></i> تسجيل الخروج</a></li>
     </ul>
-    <hr style="border-color:var(--border);">
-    <a href="/logout" class="sidebar-nav a" style="color:#dc3545;display:flex;align-items:center;padding:12px 15px;border-radius:12px;text-decoration:none;font-weight:600;border:1px solid var(--border);"><i class="fa-solid fa-right-from-bracket" style="margin-left:12px;color:#dc3545;"></i> تسجيل الخروج</a>
   </div>
 </div>
 {% endif %}
+
+<!-- Main Content -->
 <div class="container py-3">
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -150,12 +151,21 @@ footer{padding:30px 0;margin-top:60px;border-top:1px solid var(--border);text-al
   {% endwith %}
   {% block content %}{% endblock %}
 </div>
-<footer><p>© 2026 Kanaw — مكتبة الروايات العربية</p></footer>
+
+<!-- Bottom Nav (Mobile) -->
+<div class="bottom-nav">
+  <a href="/" class="{% if request.path == '/' %}active{% endif %}"><i class="fa-solid fa-house"></i> الرئيسية</a>
+  <a href="/library" class="{% if request.path == '/library' %}active{% endif %}"><i class="fa-solid fa-book-open"></i> المكتبة</a>
+  <a href="/history" class="{% if request.path == '/history' %}active{% endif %}"><i class="fa-solid fa-clock-rotate-left"></i> السجل</a>
+  <a href="/favorites" class="{% if request.path == '/favorites' %}active{% endif %}"><i class="fa-solid fa-star"></i> المفضلة</a>
+  <a href="{% if current_user.is_authenticated %}/profile{% else %}/login{% endif %}" class="{% if request.path == '/profile' %}active{% endif %}"><i class="fa-solid fa-user"></i> حسابي</a>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-function toggleTheme(){document.body.classList.toggle('dark');localStorage.setItem('theme',document.body.classList.contains('dark')?'dark':'light');}
-if(localStorage.getItem('theme')==='dark')document.body.classList.add('dark');
-async function doCheckin(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> ...';const res=await fetch('/api/checkin',{method:'POST'});const data=await res.json();if(data.success){alert('🎉 '+data.message+'\n🔥 ستريك: '+data.streak+' أيام');location.reload();}else{alert(data.message);btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-gift"></i> مكافأة الحضور';}}
+function toggleTheme() { document.body.classList.toggle('dark'); localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light'); }
+if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
+async function doCheckin(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>';const res=await fetch('/api/checkin',{method:'POST'});const data=await res.json();if(data.success){alert('🎉 '+data.message);location.reload();}else{alert(data.message);btn.disabled=false;btn.innerHTML='🎁 مكافأة الحضور';}}
 </script>
 {% block scripts %}{% endblock %}
 </body>
