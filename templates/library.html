@@ -1,160 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
-
-<style>
-    .lib-tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
-    .lib-tab { flex: 1; text-align: center; padding: 10px; font-weight: 700; color: var(--muted); text-decoration: none; border-bottom: 3px solid transparent; margin-bottom: -2px; }
-    .lib-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-    
-    .search-filter-row { display: flex; gap: 10px; margin-bottom: 20px; }
-    .search-input { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px 15px; font-size: 14px; }
-    .filter-btn { width: 45px; height: 45px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; }
-
-    .novel-list-card {
-        background: var(--card); border: 1px solid var(--border); border-radius: 16px;
-        padding: 15px; margin-bottom: 15px; position: relative;
-    }
-    .novel-card-top { display: flex; gap: 15px; margin-bottom: 15px; }
-    .novel-cover-small { width: 100px; height: 140px; border-radius: 10px; object-fit: cover; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .novel-title-link { font-weight: 800; font-size: 18px; color: var(--text); text-decoration: none; display: block; margin-bottom: 10px; }
-    
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .stat-cell { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 6px; text-align: center; }
-    .stat-cell strong { display: block; font-size: 14px; color: var(--text); }
-    .stat-cell span { font-size: 11px; color: var(--muted); }
-
-    .tags-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-    .tag { background: var(--bg); border: 1px solid var(--border); padding: 4px 12px; border-radius: 20px; font-size: 12px; color: var(--text); font-weight: 600; }
-
-    .desc-box { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-top: 15px; font-size: 13px; color: var(--muted); line-height: 1.8; }
-    .read-more-link { display: inline-block; color: var(--accent); font-weight: 700; text-decoration: none; margin-top: 8px; font-size: 13px; }
-
-    /* Modal Styling */
-    .modal-content { background: var(--bg); border-radius: 20px 20px 0 0; border: none; }
-    .filter-option { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; margin-bottom: 10px; font-weight: 600; }
-    .filter-option.active { border-color: var(--accent); color: var(--accent); background: #fdfbf7; }
-</style>
-
 <div class="container py-3">
-    <!-- Tabs -->
-    <div class="lib-tabs">
-        <a href="/favorites" class="lib-tab">المفضلة</a>
-        <a href="/library" class="lib-tab active">المكتبة</a>
-    </div>
-
-    <!-- Search & Filter -->
-    <form method="GET" action="/library" class="search-filter-row">
-        <input type="search" name="q" class="search-input" placeholder="ابحث عن رواية..." value="{{ q }}">
-        <button type="button" class="filter-btn" data-bs-toggle="modal" data-bs-target="#filterModal"><i class="fa-solid fa-bars-staggered"></i></button>
+    <h4 class="mb-3" style="font-weight:800; color:#3b2818;">📚 المكتبة</h4>
+    <form method="GET" action="/library" class="mb-4">
+        <div class="d-flex gap-2">
+            <input type="search" name="q" class="form-control" placeholder="ابحث عن رواية..." value="{{ q }}" style="background:#fff; border-radius:12px;">
+            <button type="submit" class="btn text-white" style="background:#a67c52; border-radius:12px; padding:0 20px;">بحث</button>
+        </div>
     </form>
-
-    <!-- Novel List -->
-    {% for novel in novels.items %}
-    <div class="novel-list-card">
-        <div class="novel-card-top">
-            <div class="flex-grow-1">
-                <a href="{{ url_for('novel_page', novel_id=novel.id) }}" class="novel-title-link">{{ novel.title }}</a>
-                <div class="stats-grid">
-                    <div class="stat-cell"><strong>#{{ (novel.id % 900) + 100 }}</strong><span>الترتيب</span></div>
-                    <div class="stat-cell"><strong>{{ (novel.id * 7) % 500 + 10 }}</strong><span>مشاهدة</span></div>
-                    <div class="stat-cell"><strong>{{ novel.status }}</strong><span>الحالة</span></div>
-                    <div class="stat-cell"><strong>{{ novel.chapters|length }}</strong><span>فصل</span></div>
-                </div>
-            </div>
-            {% if novel.cover_url %}
-            <img src="{{ novel.cover_url }}" class="novel-cover-small" loading="lazy" onerror="this.src='https://via.placeholder.com/100x140/eaddd0/3b2818?text=📖'">
-            {% else %}
-            <div class="novel-cover-small d-flex align-items-center justify-content-center" style="background:#eaddd0; color:#3b2818; font-size:30px;">📖</div>
-            {% endif %}
-        </div>
-
-        <div>
-            <span style="font-size:12px; font-weight:700; color:var(--muted); display:block; margin-bottom:5px;">التصنيفات</span>
-            <div class="tags-container">
-                <span class="tag">{{ novel.category }}</span>
-                <span class="tag">غموض</span>
-                <span class="tag">فانتازيا</span>
-            </div>
-        </div>
-
-        <div class="desc-box">
-            <strong style="display:block; margin-bottom:5px; color:var(--text);">عن الرواية</strong>
-            {{ novel.description[:100] if novel.description else 'لا يوجد وصف حالياً...' }}...
-            <a href="{{ url_for('novel_page', novel_id=novel.id) }}" class="read-more-link">عرض المزيد</a>
-        </div>
+    <div class="row g-3">
+      {% for novel in novels.items %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <a href="{{ url_for('novel_page', novel_id=novel.id) }}" class="novel-card">
+          {% if novel.cover_url %}<img src="{{ novel.cover_url }}" class="novel-cover" loading="lazy">{% else %}<div class="novel-cover">📖</div>{% endif %}
+          <div class="p-2 text-center"><div class="novel-title">{{ novel.title }}</div></div>
+        </a>
+      </div>
+      {% endfor %}
     </div>
-    {% else %}
-    <div class="text-center py-5"><p>لا توجد نتائج مطابقة.</p></div>
-    {% endfor %}
-
-    <!-- Pagination -->
     {% if novels.pages > 1 %}
-    <nav class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% if novels.has_prev %}
-            <li class="page-item"><a class="page-link" href="?page={{ novels.prev_num }}&q={{ q }}&cat={{ current_cat }}&status={{ current_status }}&sort={{ current_sort }}">السابق</a></li>
-            {% endif %}
-            <li class="page-item active"><span class="page-link">{{ novels.page }} / {{ novels.pages }}</span></li>
-            {% if novels.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ novels.next_num }}&q={{ q }}&cat={{ current_cat }}&status={{ current_status }}&sort={{ current_sort }}">التالي</a></li>
-            {% endif %}
-        </ul>
-    </nav>
+    <nav class="mt-4"><ul class="pagination justify-content-center">
+        {% if novels.has_prev %}<li class="page-item"><a class="page-link" href="?page={{ novels.prev_num }}&q={{ q }}">السابق</a></li>{% endif %}
+        <li class="page-item active"><span class="page-link">{{ novels.page }} / {{ novels.pages }}</span></li>
+        {% if novels.has_next %}<li class="page-item"><a class="page-link" href="?page={{ novels.next_num }}&q={{ q }}">التالي</a></li>{% endif %}
+    </ul></nav>
     {% endif %}
 </div>
-
-<!-- Filter Modal -->
-<div class="modal fade" id="filterModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-bottom">
-        <div class="modal-content">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title w-100 text-center fw-bold">فلترة</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form method="GET" action="/library" id="filterForm">
-                    <input type="hidden" name="q" value="{{ q }}">
-                    
-                    <h6 class="fw-bold mb-2">التصنيفات</h6>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6"><label class="filter-option w-100 {% if not current_cat %}active{% endif %}"><input type="radio" name="cat" value="" hidden {% if not current_cat %}checked{% endif %}> الكل</label></div>
-                        {% for cat in categories %}
-                        <div class="col-6"><label class="filter-option w-100 {% if current_cat == cat %}active{% endif %}"><input type="radio" name="cat" value="{{ cat }}" hidden {% if current_cat == cat %}checked{% endif %}> {{ cat }}</label></div>
-                        {% endfor %}
-                    </div>
-
-                    <h6 class="fw-bold mb-2">الحالة</h6>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6"><label class="filter-option w-100 {% if not current_status %}active{% endif %}"><input type="radio" name="status" value="" hidden {% if not current_status %}checked{% endif %}> الكل</label></div>
-                        {% for s in statuses %}
-                        <div class="col-6"><label class="filter-option w-100 {% if current_status == s %}active{% endif %}"><input type="radio" name="status" value="{{ s }}" hidden {% if current_status == s %}checked{% endif %}> {{ s }}</label></div>
-                        {% endfor %}
-                    </div>
-
-                    <h6 class="fw-bold mb-2">الترتيب</h6>
-                    <div class="row g-2 mb-4">
-                        <div class="col-6"><label class="filter-option w-100 {% if current_sort == 'newest' %}active{% endif %}"><input type="radio" name="sort" value="newest" hidden {% if current_sort == 'newest' %}checked{% endif %}> الأحدث</label></div>
-                        <div class="col-6"><label class="filter-option w-100 {% if current_sort == 'oldest' %}active{% endif %}"><input type="radio" name="sort" value="oldest" hidden {% if current_sort == 'oldest' %}checked{% endif %}> الأقدم</label></div>
-                    </div>
-
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn-gold flex-grow-1">تطبيق</button>
-                        <a href="/library" class="btn btn-outline-secondary flex-grow-1" style="border-radius:12px;">مسح</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    // تفعيل شكل الأزرار في المودال لما تضغط عليها
-    document.querySelectorAll('.filter-option').forEach(label => {
-        label.addEventListener('click', function() {
-            let parent = this.closest('.row');
-            parent.querySelectorAll('.filter-option').forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
-</script>
 {% endblock %}

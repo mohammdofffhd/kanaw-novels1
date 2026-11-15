@@ -2,119 +2,79 @@
 {% block title %}{{ novel.title }}{% endblock %}
 {% block content %}
 
-<style>
-    .novel-header { text-align: center; margin-bottom: 25px; margin-top: 10px; }
-    .cover-img {
-        width: 140px; height: 200px; object-fit: cover;
-        border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        background: linear-gradient(135deg, #a67c52, #8b5a2b);
-        display: inline-flex; align-items: center; justify-content: center;
-        color: white; font-size: 50px;
-    }
-    .stat-box {
-        background: #fff; border: 1px solid #eaddd0; border-radius: 12px;
-        padding: 10px; text-align: center; flex: 1;
-    }
-    .stat-box strong { display: block; font-size: 16px; color: #3b2818; }
-    .stat-box span { font-size: 11px; color: #8a7f6b; }
-    
-    .chapter-list-item {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 12px 15px; background: #fff; border-bottom: 1px solid #f0e6d8;
-        text-decoration: none; color: #3b2818; transition: 0.2s;
-    }
-    .chapter-list-item:hover { background: #fdfbf7; color: #a67c52; }
-    .chapter-list-item:last-child { border-bottom: none; border-radius: 0 0 12px 12px; }
-    .chapter-list-item:first-child { border-radius: 12px 12px 0 0; }
-</style>
-
-<!-- Header -->
-<div class="novel-header">
+<div class="text-center mb-4 mt-3">
     {% if novel.cover_url %}
-        <img src="{{ novel.cover_url }}" class="cover-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
-        <div class="cover-img" style="display:none;">📖</div>
+        <img src="{{ novel.cover_url }}" style="width:140px; height:200px; object-fit:cover; border-radius:12px; box-shadow:0 10px 20px rgba(0,0,0,0.1);" onerror="this.src='https://via.placeholder.com/140x200/eaddd0/3b2818?text=📖'">
     {% else %}
-        <div class="cover-img">📖</div>
+        <div style="width:140px; height:200px; background:#eaddd0; color:#3b2818; display:inline-flex; align-items:center; justify-content:center; font-size:50px; border-radius:12px;">📖</div>
     {% endif %}
     <h2 class="mt-3" style="font-weight:800; color:#3b2818;">{{ novel.title }}</h2>
     <p style="color:#8a7f6b; font-size:14px;">{{ novel.author }}</p>
 </div>
 
-<!-- Stats (Real Data) -->
+<!-- Stats -->
 <div class="d-flex gap-2 mb-4">
-    <div class="stat-box">
-        <strong>{{ novel.chapters|length }}</strong>
-        <span>فصل</span>
+    <div class="card p-2 text-center flex-fill" style="background:#fff; border:1px solid #eaddd0; border-radius:12px;">
+        <strong style="display:block; font-size:16px; color:#3b2818;">{{ novel.chapters|length }}</strong><span style="font-size:11px; color:#8a7f6b;">فصل</span>
     </div>
-    <div class="stat-box">
-        <strong>0</strong>
-        <span>مشاهدة</span>
+    <div class="card p-2 text-center flex-fill" style="background:#fff; border:1px solid #eaddd0; border-radius:12px;">
+        <strong style="display:block; font-size:16px; color:#3b2818;">0</strong><span style="font-size:11px; color:#8a7f6b;">مشاهدة</span>
     </div>
-    <div class="stat-box">
-        <strong>--</strong>
-        <span>التقييم</span>
+    <div class="card p-2 text-center flex-fill" style="background:#fff; border:1px solid #eaddd0; border-radius:12px;">
+        <strong style="display:block; font-size:16px; color:#3b2818;">--</strong><span style="font-size:11px; color:#8a7f6b;">التقييم</span>
     </div>
 </div>
 
 <!-- About -->
 <div class="card p-3 mb-4" style="background:#fff; border:1px solid #eaddd0; border-radius:16px;">
-    <h5 style="font-weight:700;">عن الرواية</h5>
-    <p style="color:#8a7f6b; font-size:14px; line-height:1.8;">
-        {{ novel.description or 'لا يوجد وصف لهذه الرواية حالياً. ابدأ القراءة لاكتشافها!' }}
-    </p>
-    
-    <h6 style="font-weight:700; margin-top:15px;">التصنيفات</h6>
-    <div class="d-flex flex-wrap gap-2">
-        <span class="badge" style="background:#f6f3eb; color:#3b2818; border:1px solid #eaddd0; padding:6px 12px; font-weight:600;">{{ novel.category }}</span>
-        <span class="badge" style="background:#f6f3eb; color:#3b2818; border:1px solid #eaddd0; padding:6px 12px; font-weight:600;">{{ novel.status }}</span>
+    <h5 style="font-weight:700; color:#3b2818;">عن الرواية</h5>
+    <p style="color:#8a7f6b; font-size:14px; line-height:1.8;">{{ novel.description or 'لا يوجد وصف لهذه الرواية حالياً.' }}</p>
+    <h6 style="font-weight:700; color:#3b2818; margin-top:15px;">التصنيفات</h6>
+    <div class="d-flex gap-2">
+        <span class="badge" style="background:#f6f3eb; color:#3b2818; border:1px solid #eaddd0; padding:6px 12px;">{{ novel.category }}</span>
+        <span class="badge" style="background:#f6f3eb; color:#3b2818; border:1px solid #eaddd0; padding:6px 12px;">{{ novel.status }}</span>
     </div>
 </div>
 
-<!-- Actions -->
-{% if current_user.is_authenticated %}
-<button id="favBtn" class="btn w-100 mb-3" onclick="toggleFav({{ novel.id }})" style="border:2px solid #a67c52; color:{% if is_favorite %}#fff{% else %}#a67c52{% endif %}; background:{% if is_favorite %}#a67c52{% else %}transparent{% endif %}; border-radius:12px; font-weight:bold;">
-    {% if is_favorite %}❤️ في المفضلة{% else %}🤍 أضف للمفضلة{% endif %}
-</button>
-{% endif %}
-
-{% if novel.chapters %}
-<a href="{{ url_for('read_chapter', chapter_id=novel.chapters[0].id) }}" class="btn-gold w-100 py-3 mb-4" style="font-size:16px; border-radius:12px;">
-    <i class="fa-solid fa-play ms-2"></i> بدء القراءة
-</a>
-
-<!-- Chapter List (Visible) -->
-<div class="d-flex justify-content-between align-items-center mb-2 px-1">
-    <h5 style="font-weight:700; margin:0;">قائمة الفصول</h5>
-    <span style="color:#8a7f6b; font-size:13px;">{{ novel.chapters|length }} فصل</span>
+<!-- Buttons (Stacked) -->
+<div class="d-grid gap-2 mb-4">
+    {% if current_user.is_authenticated %}
+    <button id="favBtn" class="btn btn-lg" onclick="toggleFav({{ novel.id }})" style="border:2px solid #a67c52; color:{% if is_favorite %}#fff{% else %}#a67c52{% endif %}; background:{% if is_favorite %}#a67c52{% else %}transparent{% endif %}; border-radius:12px; font-weight:bold;">
+        {% if is_favorite %}❤️ في المفضلة{% else %}🤍 أضف للمفضلة{% endif %}
+    </button>
+    {% endif %}
+    
+    {% if novel.chapters %}
+    <a href="{{ url_for('read_chapter', chapter_id=novel.chapters[0].id) }}" class="btn btn-lg text-white" style="background:#a67c52; border-radius:12px; font-weight:bold;">
+        <i class="fa-solid fa-play ms-2"></i> بدء القراءة
+    </a>
+    {% endif %}
 </div>
 
-<div style="border:1px solid #eaddd0; border-radius:12px; overflow:hidden; margin-bottom:20px;">
+<!-- Chapters -->
+{% if novel.chapters %}
+<h5 style="font-weight:700; color:#3b2818; margin-bottom:15px;">قائمة الفصول ({{ novel.chapters|length }})</h5>
+<div style="border:1px solid #eaddd0; border-radius:12px; overflow:hidden; background:#fff;">
     {% for ch in novel.chapters %}
-    <a href="{{ url_for('read_chapter', chapter_id=ch.id) }}" class="chapter-list-item">
-        <span style="font-weight:600;">الفصل {{ ch.number }} {% if ch.title %}: {{ ch.title }}{% endif %}</span>
-        <i class="fa-solid fa-chevron-left" style="font-size:12px; color:#8a7f6b;"></i>
+    <a href="{{ url_for('read_chapter', chapter_id=ch.id) }}" class="d-flex justify-content-between align-items-center p-3 text-decoration-none" style="border-bottom:1px solid #f0e6d8; color:#3b2818;" onmouseover="this.style.background='#fdfbf7'" onmouseout="this.style.background='#fff'">
+        <span style="font-weight:700;">الفصل {{ ch.number }} {% if ch.title %}: {{ ch.title }}{% endif %}</span>
+        <i class="fa-solid fa-chevron-left" style="font-size:12px; color:#a67c52;"></i>
     </a>
     {% endfor %}
 </div>
 {% else %}
-<div class="alert alert-warning text-center">لا توجد فصول مضافة بعد.</div>
+<div class="alert alert-warning text-center">لا توجد فصول مضافة.</div>
 {% endif %}
 
 {% endblock %}
-
 {% block scripts %}
 <script>
 async function toggleFav(id) {
     const res = await fetch('/api/favorite/' + id, {method: 'POST'});
     const data = await res.json();
     const btn = document.getElementById('favBtn');
-    if (data.favorited) {
-        btn.style.background = '#a67c52'; btn.style.color = '#fff';
-        btn.innerHTML = '❤️ في المفضلة';
-    } else {
-        btn.style.background = 'transparent'; btn.style.color = '#a67c52';
-        btn.innerHTML = '🤍 أضف للمفضلة';
-    }
+    if (data.favorited) { btn.style.background = '#a67c52'; btn.style.color = '#fff'; btn.innerHTML = '❤️ في المفضلة'; }
+    else { btn.style.background = 'transparent'; btn.style.color = '#a67c52'; btn.innerHTML = '🤍 أضف للمفضلة'; }
 }
 </script>
 {% endblock %}
