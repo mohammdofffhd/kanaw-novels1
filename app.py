@@ -376,14 +376,21 @@ def profile():
 @app.route('/admin')
 @login_required
 def admin():
-    if not current_user.is_admin: 
+    if not current_user.is_admin:
         flash('هذه الصفحة للمشرف فقط', 'danger')
         return redirect(url_for('index'))
     try:
-        novels = Novel.query.order_by(Novel.created_at.desc()).all()
-        return render_template('admin.html', novels=novels)
+        from sqlalchemy import func
+        page = request.args.get('page', 1, type=int)
+        stats = dict(
+            novels=Novel.query.count(),
+            users=User.query.count(),
+            chapters=db.session.query(func.count(Chapter.id)).scalar() or 0,
+        )
+        novels = Novel.query.order_by(Novel.id.desc()).paginate(page=page, per_page=30, error_out=False)
+        return render_template('admin.html', novels=novels, stats=stats)
     except Exception as e:
-        flash(f'خطأ في لوحة التحكم: {str(e)[:100]}', 'danger')
+        flash('خطأ: ' + str(e)[:200], 'danger')
         return redirect(url_for('index'))
 
 @app.route('/admin/novel/new', methods=['POST'])
@@ -479,12 +486,12 @@ def dmca_page():
 def admin_publishers():
     if not current_user.is_admin: return redirect(url_for('index'))
     try:
-        pending = PublisherRequest.query.filter_by(status='pending').order_by(PublisherRequest.created_at.desc()).all()
-        approved = PublisherRequest.query.filter_by(status='approved').all()
+        pending = PublisherRequest.query.filter_by(status='pending').order_by(PublisherRequest.created_at.desc()).limit(50).all()
+        approved = PublisherRequest.query.filter_by(status='approved').limit(50).all()
         return render_template('admin_publishers.html', pending=pending, approved=approved)
     except Exception as e:
-        flash(f'خطأ: {str(e)[:100]}', 'danger')
-        return redirect(url_for('admin'))
+        flash('خطأ في الناشرين: ' + str(e)[:200], 'danger')
+        return redirect(url_for('index'))
 
 @app.route('/admin/publishers/<int:req_id>/approve', methods=['POST'])
 @login_required
@@ -531,11 +538,11 @@ def admin_settings():
 def admin_suggestions():
     if not current_user.is_admin: return redirect(url_for('index'))
     try:
-        suggestions = NovelSuggestion.query.order_by(NovelSuggestion.created_at.desc()).all()
+        suggestions = NovelSuggestion.query.order_by(NovelSuggestion.created_at.desc()).limit(50).all()
         return render_template('admin_suggestions.html', suggestions=suggestions)
     except Exception as e:
-        flash(f'خطأ: {str(e)[:100]}', 'danger')
-        return redirect(url_for('admin'))
+        flash('خطأ في الاقتراحات: ' + str(e)[:200], 'danger')
+        return redirect(url_for('index'))
 
 @app.route('/library')
 def library():
