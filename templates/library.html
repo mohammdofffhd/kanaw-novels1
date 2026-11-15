@@ -1,29 +1,47 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container py-3">
-    <h4 class="mb-3" style="font-weight:800; color:#3b2818;">📚 المكتبة</h4>
+    <h4 class="mb-3" style="font-weight:800; color:var(--accent);">📚 المكتبة</h4>
     <form method="GET" action="/library" class="mb-4">
         <div class="d-flex gap-2">
             <input type="search" name="q" class="form-control" placeholder="ابحث عن رواية..." value="{{ q }}" style="background:#fff; border-radius:12px;">
-            <button type="submit" class="btn text-white" style="background:#a67c52; border-radius:12px; padding:0 20px;">بحث</button>
+            <button type="submit" class="btn text-white" style="background:var(--accent); border-radius:12px; padding:0 20px;">بحث</button>
         </div>
     </form>
     <div class="row g-3">
       {% for novel in novels.items %}
       <div class="col-6 col-md-4 col-lg-3">
-        <a href="{{ url_for('novel_page', novel_id=novel.id) }}" class="novel-card">
-          {% if novel.cover_url %}<img src="{{ novel.cover_url }}" class="novel-cover" loading="lazy">{% else %}<div class="novel-cover">📖</div>{% endif %}
-          <div class="p-2 text-center"><div class="novel-title">{{ novel.title }}</div></div>
+        <a href="{{ url_for('novel_page', novel_id=novel.id) }}" class="novel-card" style="overflow:hidden;">
+          <!-- غلاف ذكي -->
+          <div style="height: 200px; width: 100%; background: linear-gradient(135deg, #8b5a2b, #3b2818); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 15px; text-align: center; position: relative;">
+              <i class="fa-solid fa-book" style="font-size: 30px; color: rgba(255,255,255,0.2); margin-bottom: 10px;"></i>
+              <h6 style="color: white; font-weight: 700; margin: 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">{{ novel.title }}</h6>
+              <div style="position: absolute; bottom: 8px; left: 8px; font-size: 9px; color: rgba(255,255,255,0.4); font-family: monospace;">Kanaw</div>
+          </div>
+          <div class="p-2 text-center">
+            <div class="novel-author">{{ novel.author }}</div>
+          </div>
         </a>
       </div>
       {% endfor %}
     </div>
+    
     {% if novels.pages > 1 %}
-    <nav class="mt-4"><ul class="pagination justify-content-center">
-        {% if novels.has_prev %}<li class="page-item"><a class="page-link" href="?page={{ novels.prev_num }}&q={{ q }}">السابق</a></li>{% endif %}
+    <nav class="mt-4">
+      <ul class="pagination justify-content-center">
+        {% if novels.has_prev %}
+        <li class="page-item"><a class="page-link" href="?page={{ novels.prev_num }}{% if q %}&q={{ q }}{% endif %}">السابق</a></li>
+        {% endif %}
         <li class="page-item active"><span class="page-link">{{ novels.page }} / {{ novels.pages }}</span></li>
-        {% if novels.has_next %}<li class="page-item"><a class="page-link" href="?page={{ novels.next_num }}&q={{ q }}">التالي</a></li>{% endif %}
-    </ul></nav>
+        {% if novels.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ novels.next_num }}{% if q %}&q={{ q }}{% endif %}">التالي</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+    
+    {% if novels.items|length == 0 %}
+    <div class="text-center py-5"><p>لا توجد نتائج مطابقة.</p></div>
     {% endif %}
 </div>
 {% endblock %}
