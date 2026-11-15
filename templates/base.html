@@ -6,15 +6,16 @@
 <title>{% block title %}Kanaw — مكتبة الروايات{% endblock %}</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-:root{--bg:#f8f6f1;--card:#fff;--text:#1a1a1a;--muted:#6c757d;--accent:#8b1538;--border:#e0dcd3}
+:root{--bg:#f8f6f1;--card:#fff;--text:#1a1a1a;--muted:#6c757d;--accent:#8b1538;--border:#e0dcd3;--gold:#d4af37}
 body.dark{--bg:#12100e;--card:#1c1a17;--text:#e8e4dc;--muted:#8a8578;--border:#2e2a24}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;transition:.3s;min-height:100vh}
-.navbar{background:var(--card)!important;border-bottom:1px solid var(--border);padding:14px 0}
-.brand{font-family:'Amiri',serif;font-size:28px;font-weight:700;color:var(--accent)!important}
+.navbar{background:var(--card)!important;border-bottom:1px solid var(--border);padding:12px 0}
+.brand{font-family:'Amiri',serif;font-size:26px;font-weight:700;color:var(--accent)!important;text-decoration:none}
 .brand::before{content:'📚 '}
-.search-box{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:50px;padding:10px 20px}
+.search-box{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:50px;padding:8px 18px}
 .search-box:focus{background:var(--bg);color:var(--text);border-color:var(--accent);box-shadow:0 0 0 .2rem rgba(139,21,56,.15)}
 .novel-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:.25s;height:100%;text-decoration:none;color:var(--text);display:block}
 .novel-card:hover{transform:translateY(-5px);box-shadow:0 12px 30px rgba(0,0,0,.15);color:var(--text)}
@@ -32,67 +33,130 @@ body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;trans
 .pagination .page-link{color:var(--accent);background:var(--card);border-color:var(--border)}
 .pagination .page-link:hover{background:var(--accent);color:#fff}
 .pagination .active .page-link{background:var(--accent);border-color:var(--accent)}
-.theme-toggle{border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:50%;width:40px;height:40px;cursor:pointer;font-size:18px}
+.theme-toggle{border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:16px}
 footer{padding:30px 0;margin-top:60px;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:13px}
 .chapter-sidebar{max-height:80vh;overflow-y:auto;position:sticky;top:80px}
-.nav-user{color:var(--text)!important;font-weight:600;text-decoration:none;margin:0 8px}
-.nav-user:hover{color:var(--accent)!important}
+.menu-btn{border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:10px;width:40px;height:40px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+.offcanvas{background:var(--card)!important;color:var(--text)!important}
+.offcanvas-header{border-bottom:1px solid var(--border)}
+.offcanvas-body{color:var(--text);padding:20px}
+.sidebar-user{text-align:center;margin-bottom:20px}
+.sidebar-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#4a0d1f);display:flex;align-items:center;justify-content:center;font-size:36px;color:#fff;margin:0 auto 15px;border:3px solid var(--border)}
+.sidebar-username{font-size:18px;font-weight:700;margin:0}
+.sidebar-user p{color:var(--muted);font-size:12px;margin-top:5px}
+.sidebar-stats{display:flex;justify-content:space-around;margin:20px 0;padding:15px;background:var(--bg);border-radius:12px}
+.sidebar-stats div{text-align:center}
+.sidebar-stats small{display:block;color:var(--muted);font-size:11px}
+.sidebar-stats strong{display:block;font-size:16px;color:var(--accent)}
+.xp-bar{height:10px;background:var(--bg);border-radius:10px;overflow:hidden;margin:10px 0}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--accent));transition:width .5s}
+.sidebar-nav{list-style:none;padding:0;margin:0}
+.sidebar-nav li{margin-bottom:6px}
+.sidebar-nav a{display:flex;align-items:center;padding:12px 15px;border-radius:12px;color:var(--text);text-decoration:none;font-weight:600;font-size:14px;transition:all .2s;border:1px solid var(--border);background:var(--bg)}
+.sidebar-nav a:hover{background:var(--card);border-color:var(--accent);color:var(--accent);transform:translateX(-3px)}
+.sidebar-nav a i{margin-left:12px;width:20px;text-align:center;font-size:16px;color:var(--accent)}
 @media(max-width:768px){.chapter-sidebar{position:static;max-height:none;margin-bottom:20px}}
 </style>
 </head>
 <body>
-
 <nav class="navbar">
   <div class="container">
-    <div class="d-flex justify-content-between align-items-center w-100 flex-wrap gap-2">
+    <div class="d-flex justify-content-between align-items-center w-100 gap-2">
       <a class="navbar-brand brand" href="/">Kanaw</a>
-      <form action="/" method="GET" class="d-flex" style="flex:1;max-width:350px;">
+      <form action="/" method="GET" class="d-flex flex-grow-1" style="max-width:400px;">
         <input type="search" name="q" class="form-control search-box" placeholder="ابحث..." value="{{ q or '' }}">
       </form>
       <div class="d-flex align-items-center gap-2">
         {% if current_user.is_authenticated %}
-          <a href="/favorites" class="nav-user">⭐ المفضلة</a>
-          <a href="/history" class="nav-user">📖 السجل</a>
-          {% if current_user.is_admin %}
-            <a href="/admin" class="nav-user">🛠️ لوحة التحكم</a>
-          {% endif %}
-          <span class="badge" style="background:var(--accent);">{{ current_user.username }}</span>
-          <a href="/logout" class="btn btn-sm btn-outline-secondary">خروج</a>
+          <span class="badge d-none d-md-inline" style="background:var(--gold);color:#000;font-weight:700;padding:8px 12px;border-radius:20px;">{{ current_user.rank_icon }} {{ current_user.rank_name }}</span>
+          <button class="menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#galaxyMenu"><i class="fa-solid fa-bars"></i></button>
         {% else %}
-          <a href="/login" class="nav-user">دخول</a>
+          <a href="/login" class="btn btn-sm btn-outline-gold">دخول</a>
           <a href="/register" class="btn btn-sm btn-gold">تسجيل</a>
         {% endif %}
-        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        <button class="theme-toggle" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
       </div>
     </div>
   </div>
 </nav>
-
+{% if current_user.is_authenticated %}
+<div class="offcanvas offcanvas-end" tabindex="-1" id="galaxyMenu" style="max-width:320px;">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title">القائمة</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">{{ current_user.username[0]|upper }}</div>
+      <h5 class="sidebar-username">{{ current_user.username }}</h5>
+      <p>عضو منذ {{ current_user.created_at.strftime('%Y-%m-%d') }}</p>
+    </div>
+    <div class="text-center mb-3">
+      <span class="badge" style="background:var(--gold);color:#000;font-weight:700;padding:8px 16px;border-radius:20px;font-size:13px;">{{ current_user.rank_icon }} {{ current_user.rank_name }}</span>
+    </div>
+    <div class="sidebar-stats">
+      <div><strong>{{ current_user.level }}</strong><small>المستوى</small></div>
+      <div><strong>{{ current_user.chapters_read or 0 }}</strong><small>فصل</small></div>
+      <div><strong>{{ current_user.checkin_streak or 0 }}</strong><small>ستريك</small></div>
+    </div>
+    <div class="mb-3">
+      <div class="d-flex justify-content-between" style="font-size:13px;color:var(--muted);">
+        <span>المستوى {{ current_user.level }} / {{ max_level }}</span>
+        <span>{{ current_user.xp }} XP</span>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" style="width:{{ current_user.xp_progress }}%;"></div></div>
+      {% if current_user.level < max_level %}
+      <small style="color:var(--muted);text-align:center;display:block;">متبقي {{ current_user.xp_remaining }} XP</small>
+      {% else %}
+      <small style="color:var(--gold);text-align:center;display:block;font-weight:700;">👑 وصلت للقمة!</small>
+      {% endif %}
+    </div>
+    {% if current_user.can_checkin %}
+    <button onclick="doCheckin(this)" class="btn-gold w-100 mb-3"><i class="fa-solid fa-gift"></i> مكافأة الحضور</button>
+    {% else %}
+    <button class="btn btn-secondary w-100 mb-3" disabled><i class="fa-solid fa-check"></i> سجلت اليوم</button>
+    {% endif %}
+    <hr style="border-color:var(--border);">
+    <ul class="sidebar-nav">
+      <li><a href="/profile"><i class="fa-solid fa-user"></i> الملف الشخصي</a></li>
+      <li><a href="/"><i class="fa-solid fa-house"></i> الرئيسية</a></li>
+      <li><a href="/favorites"><i class="fa-solid fa-star"></i> رواياتي المفضلة</a></li>
+      <li><a href="/history"><i class="fa-solid fa-clock-rotate-left"></i> السجل</a></li>
+      <li><a href="#"><i class="fa-solid fa-store"></i> متجر الموقع</a></li>
+      <li><a href="#"><i class="fa-solid fa-shapes"></i> متجر الأشكال</a></li>
+      <li><a href="#"><i class="fa-solid fa-lightbulb"></i> اقتراح رواية</a></li>
+      <li><a href="#"><i class="fa-solid fa-user-plus"></i> انضم كنانشر</a></li>
+      <li><a href="#"><i class="fa-solid fa-book-open"></i> المكتبة</a></li>
+      <li><a href="#"><i class="fa-solid fa-folder"></i> مجلدات</a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-simple"></i> الترتيب</a></li>
+      <li><a href="#"><i class="fa-regular fa-copyright"></i> DMCA</a></li>
+      {% if current_user.is_admin %}
+      <li><a href="/admin"><i class="fa-solid fa-screwdriver-wrench"></i> لوحة التحكم</a></li>
+      {% endif %}
+    </ul>
+    <hr style="border-color:var(--border);">
+    <a href="/logout" class="sidebar-nav a" style="color:#dc3545;display:flex;align-items:center;padding:12px 15px;border-radius:12px;text-decoration:none;font-weight:600;border:1px solid var(--border);"><i class="fa-solid fa-right-from-bracket" style="margin-left:12px;color:#dc3545;"></i> تسجيل الخروج</a>
+  </div>
+</div>
+{% endif %}
 <div class="container py-3">
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       {% for category, msg in messages %}
         <div class="alert alert-{{ 'danger' if category == 'danger' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show">
-          {{ msg }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
       {% endfor %}
     {% endif %}
   {% endwith %}
   {% block content %}{% endblock %}
 </div>
-
-<footer>
-  <p>© 2026 Kanaw — مكتبة الروايات العربية</p>
-</footer>
-
+<footer><p>© 2026 Kanaw — مكتبة الروايات العربية</p></footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-function toggleTheme(){
-  document.body.classList.toggle('dark');
-  localStorage.setItem('theme', document.body.classList.contains('dark')?'dark':'light');
-}
-if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark');
+function toggleTheme(){document.body.classList.toggle('dark');localStorage.setItem('theme',document.body.classList.contains('dark')?'dark':'light');}
+if(localStorage.getItem('theme')==='dark')document.body.classList.add('dark');
+async function doCheckin(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> ...';const res=await fetch('/api/checkin',{method:'POST'});const data=await res.json();if(data.success){alert('🎉 '+data.message+'\n🔥 ستريك: '+data.streak+' أيام');location.reload();}else{alert(data.message);btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-gift"></i> مكافأة الحضور';}}
 </script>
 {% block scripts %}{% endblock %}
 </body>
