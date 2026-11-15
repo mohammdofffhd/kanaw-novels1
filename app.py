@@ -248,10 +248,14 @@ def api_checkin():
 
 @app.route('/')
 def index():
-    categories = [c[0] for c in db.session.query(Novel.category).distinct().all() if c[0]]
-    # جلب أحدث 10 روايات
-    novels = Novel.query.order_by(Novel.id.desc()).limit(10).all()
-    return render_template('index.html', novels=novels, categories=categories)
+    page = request.args.get('page', 1, type=int)
+    q = request.args.get('q', '').strip()
+    query = Novel.query
+    if q:
+        query = query.filter(Novel.title.contains(q) | Novel.author.contains(q))
+    # عرض 20 رواية في كل صفحة
+    novels = query.order_by(Novel.id.desc()).paginate(page=page, per_page=20, error_out=False)
+    return render_template('index.html', novels=novels, q=q)
 
 @app.route('/novel/<int:novel_id>')
 def novel_page(novel_id):
@@ -259,9 +263,8 @@ def novel_page(novel_id):
     is_fav = False
     if current_user.is_authenticated:
         is_fav = bool(Favorite.query.filter_by(user_id=current_user.id, novel_id=novel_id).first())
-    # حساب عدد المشاهدات (مبدئياً رقم عشوائي أو بناءً على الفصول)
-    views = len(novel.chapters) * 15 
-    return render_template('novel.html', novel=novel, is_favorite=is_fav, views=views)
+    # حذفنا المشاهدات الوهمية، هنبعت 0 أو القيمة الحقيقية لو موجودة
+    return render_template('novel.html', novel=novel, is_favorite=is_fav)
 
 @app.route('/read/<int:chapter_id>')
 def read_chapter(chapter_id):
